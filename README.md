@@ -31,9 +31,9 @@ my-angular-springboot-app/
 ├── python-backend/          # Flask API server
 │   ├── app_simple.py       # Main Flask application
 │   ├── fwfps.db           # SQLite database
-│   └── models/            # Database models
-├── backend/               # Java Spring Boot (legacy)
-└── node-backend/         # Node.js backend (legacy)
+│   ├── models/            # Database models
+│   └── routes/            # API route handlers
+└── test_api.py            # API testing script
 ```
 
 ## 🛠️ Setup Instructions
