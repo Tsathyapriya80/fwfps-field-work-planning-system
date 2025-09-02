@@ -9,15 +9,15 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────┐    HTTP Requests     ┌─────────────────┐    SQL Queries    ┌─────────────────┐
-│                 │   (localhost:4200    │                 │   (In Process)    │                 │
-│   ANGULAR       │    → localhost:3001) │   NODE.JS       │ ←──────────────→  │   SQLITE        │
-│   FRONTEND      │ ←──────────────────→  │   EXPRESS       │                   │   DATABASE      │
+│                 │   (localhost:4200    │                 │   (SQLAlchemy)    │                 │
+│   ANGULAR       │    → 127.0.0.1:5001) │   PYTHON        │ ←──────────────→  │   SQLITE        │
+│   FRONTEND      │ ←──────────────────→  │   FLASK         │                   │   DATABASE      │
 │                 │    JSON/REST API     │   BACKEND       │                   │                 │
 │                 │                      │                 │                   │                 │
 │ • UI Components │                      │ • REST Routes   │                   │ • users         │
 │ • Services      │                      │ • Authentication│                   │ • workplans     │
 │ • Routing       │                      │ • Business Logic│                   │ • pac_operations│
-│ • State Mgmt    │                      │ • Data Access   │                   │                 │
+│ • State Mgmt    │                      │ • SQLAlchemy    │                   │                 │
 └─────────────────┘                      └─────────────────┘                   └─────────────────┘
 ```
 
@@ -131,7 +131,7 @@
 
 USER INTERACTION FLOW:
 ┌─────────────┐    User Action    ┌─────────────┐    HTTP Request    ┌─────────────┐
-│   BROWSER   │ ────────────────→ │  ANGULAR    │ ─────────────────→ │   EXPRESS   │
+│   BROWSER   │ ────────────────→ │  ANGULAR    │ ─────────────────→ │   FLASK     │
 │             │                   │ COMPONENT   │                    │   ROUTER    │
 │ • Click     │ ←──────────────── │             │ ←───────────────── │             │
 │ • Form      │    DOM Update     │ • Validate  │    JSON Response   │ • Validate  │
@@ -146,8 +146,9 @@ USER INTERACTION FLOW:
                                   │             │                    │   LAYER     │
                                   │ • HTTP      │ ←───────────────── │             │
                                   │ • Auth      │    Query Result    │ • SQLite    │
-                                  │ • Error     │                    │ • CRUD Ops  │
-                                  │ • Cache     │                    │ • Relations │
+                                  │ • Error     │                    │ • SQLAlchemy│
+                                  │ • Cache     │                    │ • CRUD Ops  │
+                                  │             │                    │ • Relations │
                                   └─────────────┘                    └─────────────┘
 
 AUTHENTICATION FLOW:
@@ -193,6 +194,47 @@ CRUD OPERATION FLOW:
                                                                      └─────────────┘
 ```
 
+## Technology Stack Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           TECHNOLOGY STACK                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+FRONTEND STACK (Port 4200):
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   ANGULAR   │    │ TYPESCRIPT  │    │    HTML5    │    │    CSS3     │
+│   17.x+     │    │   Latest    │    │   Semantic  │    │  Responsive │
+│             │    │             │    │             │    │             │
+│ • Components│    │ • Type Safe │    │ • Templates │    │ • Flexbox   │
+│ • Services  │    │ • Interfaces│    │ • Forms     │    │ • Grid      │
+│ • Routing   │    │ • Decorators│    │ • Events    │    │ • Media Q   │
+│ • HTTP      │    │ • Modules   │    │ • Binding   │    │ • Variables │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+
+BACKEND STACK (Port 5001):
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   PYTHON    │    │    FLASK    │    │ SQLALCHEMY  │    │   SQLITE    │
+│   3.8+      │    │   Latest    │    │     ORM     │    │  Database   │
+│             │    │             │    │             │    │             │
+│ • Clean     │    │ • Routes    │    │ • Models    │    │ • File DB   │
+│ • Simple    │    │ • REST API  │    │ • Relations │    │ • Fast      │
+│ • Libraries │    │ • CORS      │    │ • Migration │    │ • Embedded  │
+│ • Standards │    │ • Session   │    │ • Query     │    │ • ACID      │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+
+SECURITY & UTILITIES:
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   BCRYPT    │    │    CORS     │    │  REQUESTS   │    │    GIT      │
+│  Password   │    │  Cross-     │    │   HTTP      │    │  Version    │
+│  Hashing    │    │  Origin     │    │  Client     │    │  Control    │
+│             │    │             │    │             │    │             │
+│ • Secure    │    │ • Frontend  │    │ • Testing   │    │ • Branches  │
+│ • Salted    │    │ • Headers   │    │ • External  │    │ • Commits   │
+│ • Verified  │    │ • Methods   │    │ • APIs      │    │ • Merges    │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+```
+
 ## Security Architecture
 
 ```
@@ -204,7 +246,7 @@ AUTHENTICATION & AUTHORIZATION:
 ┌─────────────┐    Credentials    ┌─────────────┐    Hash & Store    ┌─────────────┐
 │   CLIENT    │ ────────────────→ │   SERVER    │ ─────────────────→ │  DATABASE   │
 │             │                   │             │                    │             │
-│ • Username  │ ←──────────────── │ • bcryptjs  │ ←───────────────── │ • Hashed    │
+│ • Username  │ ←──────────────── │ • bcrypt    │ ←───────────────── │ • Hashed    │
 │ • Password  │   Session Cookie  │ • Session   │   User Record      │   Password  │
 │             │                   │ • CORS      │                    │ • User Data │
 └─────────────┘                   └─────────────┘                    └─────────────┘
