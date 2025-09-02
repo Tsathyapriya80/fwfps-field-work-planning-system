@@ -2,11 +2,11 @@
 
 ## 📋 Executive Summary
 
-The FWFPS application is a comprehensive full-stack web solution designed for field workforce planning and operations management. This proof-of-concept demonstrates a modern architecture using Angular frontend with Node.js/Express backend and SQLite database persistence.
+The FWFPS application is a comprehensive full-stack web solution designed for field workforce planning and operations management. This proof-of-concept demonstrates a modern architecture using Angular frontend with Python Flask backend and SQLite database persistence.
 
 **Architecture Overview:** Single Page Application (SPA) with RESTful API backend  
 **Development Status:** Proof of Concept - Production Ready  
-**Last Updated:** August 29, 2025
+**Last Updated:** September 2, 2025
 
 ---
 
@@ -15,9 +15,9 @@ The FWFPS application is a comprehensive full-stack web solution designed for fi
 ### High-Level Architecture Diagram
 ```
 ┌─────────────────┐    HTTP/REST API    ┌─────────────────┐    SQL Queries    ┌─────────────────┐
-│                 │   (Port 4200 →      │                 │   (In-Process)    │                 │
-│  Angular        │    Port 3001)       │  Node.js        │ ← → SQLite      │  SQLite         │
-│  Frontend       │ ← ─ ─ ─ ─ ─ ─ ─ ─ → │  Express        │   (fwfps.db)      │  Database       │
+│                 │   (Port 4200 →      │                 │   (SQLAlchemy)    │                 │
+│  Angular        │    Port 5001)       │  Python         │ ← → SQLite      │  SQLite         │
+│  Frontend       │ ← ─ ─ ─ ─ ─ ─ ─ ─ → │  Flask          │   (fwfps.db)      │  Database       │
 │  (SPA)          │                     │  Backend        │                   │                 │
 └─────────────────┘                     └─────────────────┘                   └─────────────────┘
 ```
@@ -29,12 +29,13 @@ The FWFPS application is a comprehensive full-stack web solution designed for fi
 | **Frontend** | Angular | ~18.2.0 | Single Page Application Framework |
 | **UI Framework** | Bootstrap | 5.3.x | Responsive Design & Components |
 | **Icons** | Font Awesome | 6.x | Icon Library |
-| **Backend** | Node.js | 22.18.0 | JavaScript Runtime |
-| **Web Framework** | Express.js | 4.19.2 | RESTful API Server |
+| **Backend** | Python | 3.8+ | Programming Language |
+| **Web Framework** | Flask | 2.3+ | RESTful API Server |
+| **ORM** | SQLAlchemy | 2.0+ | Object Relational Mapping |
 | **Database** | SQLite | 3.x | Embedded SQL Database |
-| **Authentication** | express-session | 1.18.0 | Session Management |
-| **Security** | bcryptjs | 2.4.3 | Password Hashing |
-| **CORS** | cors | 2.8.5 | Cross-Origin Resource Sharing |
+| **Authentication** | Flask-Session | 0.5+ | Session Management |
+| **Security** | bcrypt | 4.0+ | Password Hashing |
+| **CORS** | Flask-CORS | 4.0+ | Cross-Origin Resource Sharing |
 
 ---
 
@@ -130,21 +131,25 @@ frontend/src/
 
 ## ⚙️ Backend Architecture
 
-### Node.js Express Server Structure
+### Python Flask Server Structure
 
 ```
-node-backend/
-├── app.js                    # Main application entry point
-├── package.json              # Dependencies and scripts
+python-backend/
+├── app_simple.py             # Main application entry point
+├── requirements.txt          # Python dependencies
 ├── fwfps.db                  # SQLite database file
 │
-├── config/
-│   └── database.js           # Database configuration and initialization
+├── models/                   # SQLAlchemy ORM Models
+│   ├── __init__.py          # Package initialization
+│   ├── user.py              # User data model
+│   ├── workplan.py          # Workplan data model
+│   └── pac_operation.py     # PAC Operation data model
 │
-└── routes/
-    ├── auth.js               # Authentication endpoints
-    ├── pac.js                # PAC operations endpoints  
-    └── workplans.js          # Workplan management endpoints
+└── routes/                   # API Route Handlers
+    ├── __init__.py          # Package initialization
+    ├── auth_routes.py       # Authentication endpoints
+    ├── pac_routes.py        # PAC operations endpoints  
+    └── workplan_routes.py   # Workplan management endpoints
 ```
 
 ### API Endpoints Documentation
@@ -234,17 +239,18 @@ CREATE TABLE pac_operations (
 
 ### Backend Security Features
 
-- **Password Hashing**: bcryptjs with salt rounds
-- **Session Management**: Express-session with secure configuration
-- **CORS Protection**: Configured for specific origins
-- **Input Validation**: Request parameter validation
-- **SQL Injection Prevention**: Parameterized queries
+- **Password Hashing**: bcrypt with secure salt rounds
+- **Session Management**: Flask-Session with secure configuration
+- **CORS Protection**: Flask-CORS configured for specific origins
+- **Input Validation**: Request parameter validation and sanitization
+- **SQL Injection Prevention**: SQLAlchemy ORM with parameterized queries
 
 ---
 
 ## 🔧 Development Environment
 
 ### Prerequisites
+- Python 3.8+ 
 - Node.js 18.x or higher
 - npm 9.x or higher  
 - Angular CLI 18.x
@@ -254,16 +260,27 @@ CREATE TABLE pac_operations (
 
 1. **Clone Repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/Tsathyapriya80/fwfps-field-work-planning-system.git
 cd my-angular-springboot-app
 ```
 
 2. **Backend Setup**
 ```bash
-cd node-backend
-npm install
-node app.js
-# Server starts on http://localhost:3001
+# Create Python virtual environment
+python -m venv .venv
+
+# Activate virtual environment (Windows)
+.venv\Scripts\activate
+
+# Install Python dependencies
+pip install flask flask-sqlalchemy flask-cors flask-marshmallow bcrypt requests
+
+# Navigate to backend directory
+cd python-backend
+
+# Start Flask server
+python app_simple.py
+# Server starts on http://127.0.0.1:5001
 ```
 
 3. **Frontend Setup**
@@ -277,12 +294,13 @@ npm start
 ### Environment Configuration
 
 #### Backend Environment Variables
-```javascript
-// Default configuration in app.js
-PORT=3001
-NODE_ENV=development
-SESSION_SECRET=fwfps-session-secret
-DB_PATH=./fwfps.db
+```python
+# Environment variables for Flask application
+FLASK_ENV=development
+FLASK_DEBUG=True
+DATABASE_URL=sqlite:///fwfps.db
+SECRET_KEY=fwfps-session-secret
+CORS_ORIGINS=http://localhost:4200
 ```
 
 #### Frontend Environment
@@ -290,7 +308,7 @@ DB_PATH=./fwfps.db
 // src/environments/environment.ts
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:3001/api'
+  apiBaseUrl: 'http://127.0.0.1:5001/api'
 };
 ```
 
@@ -303,9 +321,9 @@ export const environment = {
 #### Option 1: Traditional Server Deployment
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Nginx         │    │   Node.js       │    │   SQLite        │
-│   (Port 80/443) │────┤   (Port 3001)   │────┤   Database      │
-│   Static Files  │    │   API Server    │    │   File System   │
+│   Nginx         │    │   Python        │    │   SQLite        │
+│   (Port 80/443) │────┤   Flask         │────┤   Database      │
+│   Static Files  │    │   (Port 5001)   │    │   File System   │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -335,10 +353,10 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 ### Scalability Considerations
 
 - **Database**: Migrate from SQLite to PostgreSQL/MySQL for production
-- **Backend**: Implement clustering with PM2 or similar
+- **Backend**: Implement WSGI server (Gunicorn, uWSGI) for production
 - **Frontend**: CDN deployment for static assets
 - **Caching**: Redis for session storage and API caching
-- **Load Balancing**: Nginx or AWS ALB for multiple backend instances
+- **Load Balancing**: Nginx or AWS ALB for multiple Flask instances
 
 ---
 
@@ -351,7 +369,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 | **Frontend Bundle Size** | 932.72 kB | Compressed production build |
 | **API Response Time** | < 50ms | Local SQLite queries |
 | **Database Size** | ~50 KB | With sample data |
-| **Memory Usage** | ~50 MB | Node.js backend |
+| **Memory Usage** | ~30 MB | Python Flask backend |
 | **Startup Time** | ~2 seconds | Both frontend and backend |
 
 ### Optimization Strategies
@@ -360,13 +378,13 @@ COPY --from=builder /app/dist /usr/share/nginx/html
    - Lazy loading of feature modules
    - Tree-shaking for unused dependencies
    - Service worker for offline capability
-   - Image optimization and compression
 
 2. **Backend Optimizations**
-   - Database query optimization
-   - Response caching mechanisms
-   - Connection pooling
-   - Compression middleware
+   - SQLAlchemy query optimization
+   - Database connection pooling
+   - API response caching
+   - Production WSGI server deployment
+   - Image optimization and compression
 
 ---
 
@@ -376,7 +394,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 1. **Authentication & Authorization**
    - Session-based authentication
-   - Password hashing with bcryptjs
+   - Password hashing with bcrypt
    - Role-based access control (planned)
 
 2. **Data Protection**
@@ -414,7 +432,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 Testing Pyramid:
 ├── Unit Tests (70%)
 │   ├── Angular components (Jasmine/Karma)
-│   └── Node.js API endpoints (Jest/Mocha)
+│   └── Python Flask API endpoints (pytest)
 ├── Integration Tests (20%)
 │   ├── API integration tests
 │   └── Database integration tests  
@@ -458,7 +476,11 @@ Testing Pyramid:
 
 1. **Start Backend**:
 ```bash
-cd node-backend && node app.js
+cd python-backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python app_simple.py
 ```
 
 2. **Start Frontend**:
