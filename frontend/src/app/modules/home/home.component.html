@@ -1,0 +1,138 @@
+<div class="modern-dashboard">
+  <!-- FDA Header -->
+  <div class="fda-header">
+    <div class="header-bar">
+      <div class="fda-title">U.S FOOD AND DRUG ADMINISTRATION / ORA - OFFICE OF REGULATORY AFFAIRS</div>
+      <div class="system-title">
+        <span class="model-badge">MODEL</span>
+        <span class="system-name">FIELD WORK FORCE PLANNING SYSTEM</span>
+      </div>
+    </div>
+    
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+      <button class="nav-btn active">
+        <i class="fas fa-home"></i>
+        <span>FWFPS HOME</span>
+      </button>
+      <button class="nav-btn" [routerLink]="['/model']">
+        <i class="fas fa-sitemap"></i>
+        <span>MODEL MODULE</span>
+      </button>
+      <button class="nav-btn" (click)="navigateToReports()">
+        <i class="fas fa-chart-bar"></i>
+        <span>REPORT MODULE</span>
+      </button>
+      <button class="nav-btn" (click)="navigateToTasks()">
+        <i class="fas fa-tasks"></i>
+        <span>TO MODULE</span>
+      </button>
+      <button class="nav-btn" (click)="navigateToGroupPAC()">
+        <i class="fas fa-users"></i>
+        <span>GROUP PAC UTILITY</span>
+      </button>
+      <button class="nav-btn logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>LOGOUT</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <div class="page-header">
+      <i class="fas fa-home"></i>
+      FWFPS WORKPLAN SELECTION
+    </div>
+    
+    <!-- Current Year Workplan -->
+    <div class="fiscal-year-section current-year">
+      <div class="fiscal-year-header">FISCAL YEAR 2025 (CURRENT)</div>
+      <div class="workplan-container">
+        <div class="workplan-item">
+          <a href="javascript:void(0)" class="workplan-link" (click)="selectWorkplan('Workplan 0 - 2025.0')" title="Navigate to PPS - Program Planning System">
+            <span class="workplan-icon">📋</span>
+            <span class="underline">Workplan 0 - 2025.0</span>
+            <span class="workplan-status current">ACTIVE</span>
+            <span class="nav-hint">→ Open in PPS</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Year Workplan -->
+    <div class="fiscal-year-section upcoming-year">
+      <div class="fiscal-year-header">FISCAL YEAR 2026 (UPCOMING)</div>
+      <div class="workplan-container">
+        <div class="workplan-item">
+          <a href="javascript:void(0)" class="workplan-link" (click)="selectWorkplan('Workplan 0 - 2026.0')" title="Navigate to PPS - Program Planning System">
+            <span class="workplan-icon">📅</span>
+            <span class="underline">Workplan 0 - 2026.0</span>
+            <span class="workplan-status upcoming">PLANNING</span>
+            <span class="nav-hint">→ Open in PPS</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="older-workplans-section">
+      <div class="select-label">Select a Previous Workplan (opens in PPS):</div>
+      <div class="select-container">
+        <select class="workplan-select" (change)="onWorkplanSelect($event)" title="Select a previous workplan to open in PPS">
+          <option value="">Select a previous workplan...</option>
+          <option *ngFor="let plan of olderWorkplans" [value]="plan">{{plan}}</option>
+        </select>
+        <div class="select-hint">
+          <i class="fas fa-info-circle"></i>
+          Selecting a workplan will navigate to the PPS (Program Planning System)
+        </div>
+      </div>
+    </div>
+      <h1>Welcome to FWFPS</h1>
+      <p>Select a fiscal year and workplan to begin</p>
+    </div>
+
+    <!-- Fiscal Year Cards -->
+    <div class="fiscal-year-grid">
+      <div class="fiscal-year-card" *ngFor="let fy of fiscalYears">
+        <div class="card-header">
+          <h2>Fiscal Year {{fy.year}}</h2>
+          <span class="status-badge active">Active</span>
+        </div>
+        <div class="card-content">
+          <div class="workplan-item" (click)="selectWorkplan(fy.workplan)">
+            <i class="fas fa-file-alt"></i>
+            <span>{{fy.workplan}}</span>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+          <div class="workplan-stats">
+            <div class="stat">
+              <span class="stat-value">{{fy.totalTasks}}</span>
+              <span class="stat-label">Tasks</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{fy.completion}}%</span>
+              <span class="stat-label">Complete</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Archive Section -->
+    <div class="archive-section">
+      <h2>Workplan Archive</h2>
+      <div class="archive-selector">
+        <select class="modern-select" (change)="onWorkplanSelect($event)" title="Select an archived workplan to open in PPS">
+          <option value="">Select an archived workplan to open in PPS</option>
+          <option *ngFor="let plan of olderWorkplans" [value]="plan">
+            {{plan}}
+          </option>
+        </select>
+        <div class="archive-hint">
+          <i class="fas fa-external-link-alt"></i>
+          Opens in PPS (Program Planning System)
+        </div>
+      </div>
+    </div>
+  </div>

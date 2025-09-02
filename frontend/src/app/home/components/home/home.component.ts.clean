@@ -1,0 +1,436 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSelectModule } from '@angular/material/select';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule
+  ],
+  template: `
+    <div class="fwfps-container">
+      <!-- FDA Header -->
+      <header class="fda-header">
+        <div class="header-content">
+          <div class="brand-section">
+            <span class="brand-name">FWFPS</span>
+            <span class="brand-divider">|</span>
+            <span class="brand-subtitle">Field Work Force Planning System</span>
+          </div>
+          <div class="nav-actions">
+            <button mat-button class="nav-btn">
+              <mat-icon>assessment</mat-icon> Model
+            </button>
+            <button mat-button class="nav-btn">
+              <mat-icon>bar_chart</mat-icon> Reports
+            </button>
+            <button mat-button class="nav-btn">
+              <mat-icon>task</mat-icon> Tasks
+            </button>
+            <button mat-button class="nav-btn">
+              <mat-icon>group</mat-icon> Group PAC
+            </button>
+            <button mat-button class="nav-btn logout" (click)="logout()">
+              <mat-icon>logout</mat-icon>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="page-header">
+          <h1>FWFPS Home</h1>
+        </div>
+
+        <div *ngIf="!showDashboard" class="workplan-sections">
+          <!-- Current Year Workplan -->
+          <div class="workplan-card current-year">
+            <div class="card-header">
+              <h2>FISCAL YEAR {{ currentYear }} (CURRENT)</h2>
+            </div>
+            <div class="card-content">
+              <div class="workplan-item">
+                <div class="workplan-icon">📋</div>
+                <div class="workplan-info">
+                  <span class="workplan-title">Workplan {{ currentYear }}</span>
+                  <span class="workplan-status active">ACTIVE</span>
+                </div>
+                <button mat-raised-button color="primary" (click)="toggleView()">
+                  Open Workplan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Year Workplan -->
+          <div class="workplan-card upcoming-year">
+            <div class="card-header">
+              <h2>FISCAL YEAR {{ upcomingYear }} (UPCOMING)</h2>
+            </div>
+            <div class="card-content">
+              <div class="workplan-item">
+                <div class="workplan-icon">📅</div>
+                <div class="workplan-info">
+                  <span class="workplan-title">Workplan {{ upcomingYear }}</span>
+                  <span class="workplan-status planning">PLANNING</span>
+                </div>
+                <button mat-raised-button color="accent" (click)="selectUpcomingWorkplan()">
+                  Open Workplan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Previous Workplans -->
+          <div class="workplan-card previous-years">
+            <div class="card-header">
+              <h2>PREVIOUS WORKPLANS</h2>
+            </div>
+            <div class="card-content">
+              <mat-form-field appearance="outline" class="workplan-select">
+                <mat-label>Select Previous Workplan</mat-label>
+                <mat-select [(ngModel)]="selectedWorkplan" (selectionChange)="selectWorkplan($event)">
+                  @for (workplan of oldWorkplans; track workplan.year) {
+                    <mat-option [value]="workplan.name">{{ workplan.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="showDashboard" class="dashboard">
+          <div class="navigation-buttons">
+            <button mat-raised-button (click)="toggleView()">
+              <mat-icon>arrow_back</mat-icon> Back to Workplan Selection
+            </button>
+          </div>
+          
+          <div class="system-links">
+            <button mat-raised-button color="primary" (click)="goToPPS()">
+              <mat-icon>work</mat-icon> PPS
+            </button>
+            <button mat-raised-button color="primary" (click)="goToPAC()">
+              <mat-icon>assessment</mat-icon> PAC
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  `,
+  styles: [`
+    /* FDA Brand Colors */
+    .fwfps-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .fda-header {
+      background: linear-gradient(135deg, #1B2B85 0%, #0071BC 100%);
+      box-shadow: 0 4px 8px rgba(27, 43, 133, 0.3);
+      border-bottom: 4px solid #FF6B35;
+      padding: 0;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .brand-divider {
+      color: #FF6B35;
+      font-weight: bold;
+      font-size: 1.8rem;
+    }
+
+    .brand-subtitle {
+      color: #E7F6F8;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-btn {
+      color: #FFFFFF !important;
+      border: 2px solid transparent !important;
+      padding: 0.5rem 1rem !important;
+      border-radius: 6px !important;
+      transition: all 0.3s ease !important;
+      font-weight: 500 !important;
+    }
+
+    .nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      border-color: #FF6B35 !important;
+      transform: translateY(-2px) !important;
+    }
+
+    .nav-btn.logout {
+      background-color: rgba(255, 107, 53, 0.2) !important;
+    }
+
+    .nav-btn.logout:hover {
+      background-color: #FF6B35 !important;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 3rem;
+      color: #1B2B85;
+      font-weight: 700;
+      margin: 0;
+      padding: 1.5rem 0;
+      background: linear-gradient(135deg, #E7F6F8 0%, #ffffff 100%);
+      border: 3px solid #1B2B85;
+      border-radius: 12px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 12px rgba(27, 43, 133, 0.2);
+    }
+
+    .workplan-sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .workplan-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 3px solid #e1e1e1;
+    }
+
+    .workplan-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+
+    .workplan-card.current-year {
+      border-color: #0071BC;
+    }
+
+    .workplan-card.upcoming-year {
+      border-color: #FF6B35;
+    }
+
+    .workplan-card.previous-years {
+      grid-column: 1 / -1;
+      border-color: #6c757d;
+    }
+
+    .card-header {
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, #1B2B85 0%, #0071BC 100%);
+    }
+
+    .current-year .card-header {
+      background: linear-gradient(135deg, #0071BC 0%, #00A651 100%);
+    }
+
+    .upcoming-year .card-header {
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+    }
+
+    .previous-years .card-header {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    }
+
+    .card-header h2 {
+      color: #FFFFFF;
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .card-content {
+      padding: 1.5rem;
+    }
+
+    .workplan-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .workplan-icon {
+      font-size: 2rem;
+      opacity: 0.8;
+    }
+
+    .workplan-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .workplan-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1B2B85;
+    }
+
+    .workplan-status {
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: fit-content;
+    }
+
+    .workplan-status.active {
+      background-color: #00A651;
+      color: #FFFFFF;
+    }
+
+    .workplan-status.planning {
+      background-color: #FF6B35;
+      color: #FFFFFF;
+    }
+
+    .workplan-select {
+      width: 100%;
+    }
+
+    /* Dashboard Styles */
+    .dashboard {
+      text-align: center;
+    }
+
+    .navigation-buttons {
+      margin-bottom: 2rem;
+    }
+
+    .system-links {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .workplan-sections {
+        grid-template-columns: 1fr;
+      }
+      
+      .header-content {
+        padding: 1rem;
+      }
+      
+      .brand-name {
+        font-size: 1.5rem;
+      }
+      
+      .brand-subtitle {
+        display: none;
+      }
+      
+      .nav-actions {
+        gap: 0.25rem;
+      }
+      
+      .nav-btn {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.8rem !important;
+      }
+    }
+  `]
+})
+export class HomeComponent implements OnInit {
+  showDashboard = false;
+  selectedWorkplan: string = '';
+  currentYear = 2025;
+  upcomingYear = 2026;
+  oldWorkplans = [
+    { year: 2024, name: 'Workplan 2024' },
+    { year: 2023, name: 'Workplan 2023' },
+    { year: 2022, name: 'Workplan 2022' }
+  ];
+
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.showDashboard = false;
+  }
+
+  toggleView() {
+    this.showDashboard = !this.showDashboard;
+  }
+
+  selectUpcomingWorkplan() {
+    console.log('Opening upcoming workplan: ' + this.upcomingYear);
+    this.showDashboard = true;
+  }
+
+  logout() {
+    this.router.navigate(['/auth/login']);
+  }
+
+  selectWorkplan(event: any) {
+    this.selectedWorkplan = event.value;
+    this.showDashboard = true;
+  }
+
+  goToPPS() {
+    this.router.navigate(['/pps']);
+  }
+
+  goToPAC() {
+    this.router.navigate(['/pac']);
+  }
+}

@@ -1,0 +1,207 @@
+<div class="fda-pac-system">
+  <!-- FDA Header -->
+  <div class="fda-header">
+    <div class="header-bar">
+      <div class="fda-title">U.S FOOD AND DRUG ADMINISTRATION / ORA</div>
+      <div class="system-title">
+        <span class="model-badge">MODEL</span>
+        <span class="system-name">FIELD WORK FORCE PLANNING SYSTEM</span>
+      </div>
+    </div>
+    
+    <!-- Navigation Menu -->
+    <div class="nav-menu">
+      <button class="nav-btn">FWFPS HOME</button>
+      <button class="nav-btn">MODEL MODULE</button>
+      <button class="nav-btn">REPORT MODULE</button>
+      <button class="nav-btn">TO MODULE</button>
+      <button class="nav-btn">GROUP PAC UTILITY</button>
+      <button class="nav-btn logout">LOGOUT</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-container">
+    
+    <!-- Operations View (Only shown when showOperations is true) -->
+    @if (showOperations && selectedPacForOperations) {
+      <!-- Report Selection -->
+      <div class="report-selection">
+        <label for="reportSelect">Select a report:</label>
+        <select id="reportSelect" class="report-dropdown">
+          <option value="operations-hours" selected>Report 2 - Operations/Hours by ORA Divisions</option>
+          <option value="compliance-summary">Report 3 - Compliance Summary</option>
+          <option value="resource-allocation">Report 4 - Resource Allocation</option>
+        </select>
+        <button class="go-btn">GO</button>
+        <button class="change-pac-btn">DELETE/CHANGE PAC ?</button>
+      </div>
+
+      <!-- Operations Tabs -->
+      <div class="operations-container">
+        <div class="operations-header">
+          <div class="ops-tabs">
+            <button class="ops-tab" 
+                    [class.active]="activeOperationTab === 'OPS_25_26'"
+                    (click)="switchOperationTab('OPS_25_26')">
+              OPS 25-26
+            </button>
+            <button class="ops-tab" 
+                    [class.active]="activeOperationTab === 'OPS_314_16'"
+                    (click)="switchOperationTab('OPS_314_16')">
+              OPS 314-16
+            </button>
+            <button class="ops-tab consolidated-tab" 
+                    [class.active]="activeOperationTab === 'CONSOLIDATED'"
+                    (click)="switchOperationTab('CONSOLIDATED')">
+              CONSOLIDATED VIEW
+            </button>
+          </div>
+          <div class="tab-indicator">
+            <span class="active-tab-label">
+              {{ activeOperationTab === 'OPS_25_26' ? 'Operations 25-26: Field Operations & Inspections' : 
+                 activeOperationTab === 'OPS_314_16' ? 'Operations 314-16: Laboratory Analysis & Testing' :
+                 'Consolidated View: Combined Operations Analysis' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="navigation-controls">
+          <button class="back-btn" (click)="backToPacListing()">← Back to PAC Listing</button>
+        </div>
+
+        <!-- Operations Data Tables -->
+        @if (activeOperationTab !== 'CONSOLIDATED') {
+          <!-- Standard Operations Table -->
+          <div class="operations-data">
+            <table class="operations-table">
+              <thead>
+                <tr>
+                  <th>Division</th>
+                  <th>Code</th>
+                  <th>Operations</th>
+                  <th>Hours</th>
+                  <th>FTEs</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of getCurrentOperationsData(); track item.divisionCode) {
+                  <tr>
+                    <td>{{ item.divisionName }}</td>
+                    <td>{{ item.divisionCode }}</td>
+                    <td>{{ item.operations }}</td>
+                    <td>{{ item.hours | number:'1.2-2' }}</td>
+                    <td>{{ item.ftes | number:'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <!-- Consolidated View Table -->
+          <div class="consolidated-data">
+            <table class="consolidated-table">
+              <thead>
+                <tr class="consolidated-header">
+                  <th rowspan="2">Division</th>
+                  <th colspan="3">OPS 25-26 (Field)</th>
+                  <th colspan="3">OPS 314-16 (Laboratory)</th>
+                  <th rowspan="2">Total Hours</th>
+                  <th rowspan="2">Total FTEs</th>
+                </tr>
+                <tr class="division-header-row">
+                  <th>Ops</th>
+                  <th>Hours</th>
+                  <th>FTEs</th>
+                  <th>Ops</th>
+                  <th>Hours</th>
+                  <th>FTEs</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of getConsolidatedData(); track item.division) {
+                  <tr class="consolidated-row">
+                    <td>{{ item.division }}</td>
+                    <td>{{ item.field.operations }}</td>
+                    <td>{{ item.field.hours | number:'1.2-2' }}</td>
+                    <td>{{ item.field.ftes | number:'1.2-2' }}</td>
+                    <td>{{ item.lab.operations }}</td>
+                    <td>{{ item.lab.hours | number:'1.2-2' }}</td>
+                    <td>{{ item.lab.ftes | number:'1.2-2' }}</td>
+                    <td>{{ item.totalHours | number:'1.2-2' }}</td>
+                    <td>{{ item.totalFtes | number:'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- PAC Listing View (Default view) -->
+      <div class="workplan-header">
+        <h2>FY 2005 Model - Workplan</h2>
+        <h3>PPS {{ ppsId }} - {{ programTitle }}</h3>
+        <div class="section-title">Program Workplan Summary</div>
+      </div>
+
+      <!-- PAC Summary Button -->
+      <div class="summary-controls">
+        <button class="summary-btn active">WP Summary</button>
+      </div>
+
+      <!-- PAC Listing Table -->
+      <div class="pac-listing">
+        <table class="pac-table">
+          <thead>
+            <tr class="pac-header">
+              <th>PAC</th>
+              <th>Description</th>
+              <th>End Date</th>
+              <th>Months Remaining</th>
+              <th>Status</th>
+              <th>Hours</th>
+              <th>Planned FTEs</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pac of pacItems; track pac.pac) {
+              <tr class="pac-row" (click)="showPacOperations(pac)">
+                <td class="pac-code">{{ pac.pac }}</td>
+                <td class="pac-description">{{ pac.description }}</td>
+                <td>{{ pac.endDate }}</td>
+                <td>{{ pac.monthsRemaining }}</td>
+                <td>
+                  <span class="status-badge" [class]="'status-' + pac.status.toLowerCase()">
+                    {{ pac.status }}
+                  </span>
+                </td>
+                <td class="hours">{{ pac.hours | number:'1.2-2' }}</td>
+                <td class="ftes">{{ pac.plannedFtes | number:'1.2-2' }}</td>
+              </tr>
+            }
+            <!-- Totals Row -->
+            <tr class="totals-row">
+              <td><strong>Totals</strong></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td class="hours"><strong>{{ totals.hours | number:'1.2-2' }}</strong></td>
+              <td class="ftes"><strong>{{ totals.plannedFtes | number:'1.2-2' }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="last-updated">Last Updated:</div>
+    <div class="print-version">
+      <button class="print-btn">📄 PRINT VERSION</button>
+    </div>
+  </div>
+</div>

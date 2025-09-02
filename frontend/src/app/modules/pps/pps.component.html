@@ -1,0 +1,144 @@
+<div class="fda-pps-system">
+  <!-- FDA Header -->
+  <div class="fda-header">
+    <div class="header-bar">
+      <div class="fda-title">U.S FOOD AND DRUG ADMINISTRATION / ORA - OFFICE OF REGULATORY AFFAIRS</div>
+      <div class="system-title">
+        <span class="model-badge">MODEL</span>
+        <span class="system-name">FIELD WORK FORCE PLANNING SYSTEM</span>
+      </div>
+    </div>
+    
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+      <button class="nav-btn" (click)="navigateToHome()">
+        <i class="fas fa-home"></i> FWFPS HOME
+      </button>
+      <button class="nav-btn" routerLink="/model">
+        <i class="fas fa-sitemap"></i> MODEL MODULE
+      </button>
+      <button class="nav-btn">
+        <i class="fas fa-chart-bar"></i> REPORT MODULE
+      </button>
+      <button class="nav-btn">
+        <i class="fas fa-tasks"></i> TO MODULE
+      </button>
+      <button class="nav-btn">
+        <i class="fas fa-users"></i> GROUP PAC UTILITY
+      </button>
+      <button class="nav-btn logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> LOGOUT
+      </button>
+      <!-- Backend Status Indicator -->
+      <div class="backend-status" *ngIf="availableWorkplans.length > 0" title="Connected to SQLite Database Backend">
+        <i class="fas fa-database"></i> 
+        <span class="status-text">Backend Active ({{availableWorkplans.length}} workplans)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb-nav">
+      <button class="breadcrumb-btn" (click)="navigateToHome()">
+        <i class="fas fa-home"></i> FWFPS Home
+      </button>
+      <span class="breadcrumb-separator">></span>
+      <span class="breadcrumb-current">
+        <i class="fas fa-chart-line"></i> PPS - Program Planning System
+      </span>
+      <div class="nav-actions">
+        <button class="action-btn primary" (click)="navigateToPAC()" title="Navigate to PAC Operations">
+          <i class="fas fa-arrow-right"></i> Go to PAC Operations
+        </button>
+      </div>
+    </div>
+
+    <!-- Workplan Header -->
+    <div class="workplan-header">
+      <div>
+        <h1>FY {{ workplanYear }} Model - Workplan</h1>
+        <div class="workplan-subtitle">{{ selectedWorkplan }} Summary</div>
+      </div>
+      <div class="help-section">
+        <span class="help-text">HELP</span>
+        <button class="help-btn">?</button>
+      </div>
+    </div>
+
+    <!-- Report Navigation -->
+    <div class="report-nav">
+      <span class="report-link active">▷ Report 1</span>
+    </div>
+
+    <!-- Introduction Text -->
+    <div class="intro-section">
+      <p class="intro-text">
+        <strong>{{ selectedWorkplan }}</strong> - The PPS module facilitates comprehensive project plan management for FY {{ workplanYear }}. 
+        Users can assign tasks, track progress, and efficiently allocate resources within this system. This section details 
+        the workflow for creating, updating, and monitoring project plans, ensuring that all aspects 
+        of planning are organized and transparent.
+        @if (workplanYear > 2025) {
+          <em> This workplan represents projected future requirements.</em>
+        }
+        @if (workplanYear < 2025) {
+          <em> This workplan shows historical data for reference.</em>
+        }
+      </p>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+    } @else {
+      <!-- Workplan Table -->
+      <div class="workplan-table-container">
+        <table class="workplan-table">
+          <thead>
+            <tr>
+              <th class="pps-col">PPS</th>
+              <th class="desc-col">Description</th>
+              <th class="hours-col">Hours</th>
+              <th class="fte-col">Planned<br>FTEs</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredItems; track item.id) {
+              <tr [class.highlighted]="item.id === '03' || item.id === '56'">
+                <td class="pps-cell">
+                  <button class="pps-link" (click)="viewDetails(item.id)" title="View PAC Details for PPS {{ item.id }}">
+                    {{ item.id }}
+                  </button>
+                </td>
+                <td class="desc-cell">{{ item.description }}</td>
+                <td class="hours-cell">{{ item.hours | number:'1.2-2' }}</td>
+                <td class="fte-cell">{{ item.plannedFtes | number:'1.2-2' }}</td>
+              </tr>
+            }
+            <!-- Totals Row -->
+            <tr class="totals-row">
+              <td class="total-label" colspan="2"><strong>Totals</strong></td>
+              <td class="total-hours"><strong>{{ totalHours | number:'1.2-2' }}</strong></td>
+              <td class="total-ftes"><strong>{{ totalFtes | number:'1.2-2' }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Footer -->
+    <div class="page-footer">
+      <div class="last-updated">
+        Last Updated: {{ today | date:'MM-dd-yyyy HH:mm a' }}
+      </div>
+      <div class="print-section">
+        <button class="print-btn">
+          <i class="fas fa-print"></i> PRINT VERSION
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

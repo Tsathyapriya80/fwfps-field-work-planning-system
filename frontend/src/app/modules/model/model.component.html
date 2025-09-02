@@ -1,0 +1,175 @@
+<div class="fda-model-system">
+  <!-- FDA Header -->
+  <div class="fda-header">
+    <div class="header-bar">
+      <div class="fda-title">U.S FOOD AND DRUG ADMINISTRATION / ORA - OFFICE OF REGULATORY AFFAIRS</div>
+      <div class="system-title">
+        <span class="model-badge">MODEL</span>
+        <span class="system-name">FIELD WORK FORCE PLANNING SYSTEM</span>
+      </div>
+    </div>
+    
+    <!-- Navigation Menu -->
+    <div class="nav-menu">
+      <button class="nav-btn" routerLink="/fwfps">📁 FWFPS HOME</button>
+      <button class="nav-btn active" routerLink="/model">📊 MODEL MODULE</button>
+      <button class="nav-btn">📋 REPORT MODULE</button>
+      <button class="nav-btn">🎯 TO MODULE</button>
+      <button class="nav-btn">📦 GROUP PAC UTILITY</button>
+      <button class="nav-btn logout">🚪 LOGOUT</button>
+      <!-- Backend Status Indicator -->
+      <div class="backend-status" *ngIf="backendConnected" title="Connected to SQLite Database Backend">
+        <i class="fas fa-database"></i> 
+        <span class="status-text">Backend Active ({{backendWorkplans.length}} workplans)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-container">
+    <!-- Module Header -->
+    <div class="module-header">
+      <h2>Model Module</h2>
+      <div class="help-section">
+        <button class="help-btn">HELP ❓</button>
+      </div>
+    </div>
+
+    <!-- Module Description -->
+    <div class="module-description">
+      <p>The Model Module is designed to support the creation and management of data models within the system. Users are able to define essential data structures, establish relationships between datasets, and set necessary constraints to ensure data consistency and reliability. This section provides an overview of the steps and best practices for building, maintaining, and organizing data models to facilitate seamless integration with other modules.</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="create-btn" (click)="createNewModel()">
+        ➕ Create New Model
+      </button>
+    </div>
+
+    <!-- New Model Form (when creating) -->
+    @if (isCreatingNewModel) {
+      <div class="new-model-form">
+        <div class="form-header">
+          <h3>Create New Workplan Model</h3>
+        </div>
+        <div class="form-content">
+          <div class="form-group">
+            <label for="modelYear">Year:</label>
+            <input type="text" 
+                   id="modelYear" 
+                   [(ngModel)]="newModelYear" 
+                   placeholder="e.g., 2027"
+                   class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="modelDescription">Description:</label>
+            <input type="text" 
+                   id="modelDescription" 
+                   [(ngModel)]="newModelDescription" 
+                   placeholder="e.g., Workplan 0 - 2027 (FY 2027 Work Plan)"
+                   class="form-input">
+          </div>
+          <div class="form-actions">
+            <button class="save-btn" (click)="saveNewModel()">💾 Save</button>
+            <button class="cancel-btn" (click)="cancelNewModel()">❌ Cancel</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Workplan Models Table -->
+    <div class="models-table-container">
+      <table class="models-table">
+        <thead>
+          <tr class="table-header">
+            <th>Model</th>
+            <th>Description</th>
+            <th>New Model</th>
+            <th>System Data</th>
+            <th>Workplan Data</th>
+            <th>Data Check</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (model of workplanModels; track model.id) {
+            <tr class="model-row" [class]="getStatusClass(model.status)">
+              <td class="model-id">
+                <div class="model-info">
+                  <span class="model-name">{{ model.id }}</span>
+                  <span class="status-badge" [class]="getStatusClass(model.status)">
+                    {{ getStatusLabel(model.status) }}
+                  </span>
+                </div>
+              </td>
+              <td class="model-description">
+                <a href="#" (click)="viewModelDetails(model)" class="description-link">
+                  {{ model.description }}
+                </a>
+                <div class="model-meta">
+                  <small>Created: {{ model.createdDate | date:'MM/dd/yyyy' }}</small>
+                  <small>Modified: {{ model.lastModified | date:'MM/dd/yyyy' }}</small>
+                </div>
+              </td>
+              <td class="action-column">
+                <div class="action-buttons-column">
+                  <button class="projection-btn" (click)="editModel(model)" title="Edit Model">
+                    📊 Projection
+                  </button>
+                  <button class="edit-btn" (click)="editModel(model)" title="Edit Model">
+                    ✏️
+                  </button>
+                </div>
+              </td>
+              <td class="action-column">
+                <div class="action-buttons-column">
+                  <button class="system-data-btn" title="System Data">
+                    👤
+                  </button>
+                  <button class="edit-btn" (click)="editModel(model)" title="Edit System Data">
+                    ✏️
+                  </button>
+                </div>
+              </td>
+              <td class="action-column">
+                <div class="action-buttons-column">
+                  <button class="workplan-data-btn" title="Workplan Data">
+                    📋
+                  </button>
+                  <button class="edit-btn" (click)="editModel(model)" title="Edit Workplan Data">
+                    ✏️
+                  </button>
+                </div>
+              </td>
+              <td class="action-column">
+                <button class="check-pac-btn" (click)="checkPacData(model)">
+                  Check PAC Data
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer Notes -->
+    <div class="footer-notes">
+      <div class="note">
+        <strong>Note:</strong> To create a Workplan for FY 2027 you must lock last Amendment/Workplan for FY 2026, 
+        and all Pacs for all previous Amendments/Workplans must be complete.
+      </div>
+      <div class="note">
+        <strong>Amendment Creation:</strong> To create Amendment for FY 2026 you must lock last Amendment or Workplan for FY 2026, 
+        and all Pacs for all previous Amendments/Workplans must be complete.
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="last-updated">Last Updated: {{ currentDate | date:'MM/dd/yyyy HH:mm' }}</div>
+    <div class="print-version">
+      <button class="print-btn">📄 PRINT VERSION</button>
+    </div>
+  </div>
+</div>

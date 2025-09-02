@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FWFPS Backend Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1B2B85 0%, #0071BC 50%, #2d5a4d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f1b0b7;
+        }
+        
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #2d5a4d, #1B2B85);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #3d6a5d, #2B3B95);
+        }
+        
+        .data-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 FWFPS Backend Integration Test</h1>
+        <p>Testing connection between Angular Frontend and Node.js/SQLite Backend</p>
+        <p><strong>Field Work Force Planning System</strong></p>
+    </div>
+
+    <div class="test-section">
+        <h2>🏥 Health Check</h2>
+        <button onclick="testHealth()">Test Backend Health</button>
+        <div id="health-status"></div>
+        <div id="health-data" class="data-display" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Workplans API</h2>
+        <button onclick="testWorkplans()">Load Workplans</button>
+        <div id="workplans-status"></div>
+        <div id="workplans-data" class="data-display" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 PAC Operations API</h2>
+        <button onclick="testPacOperations()">Load PAC Operations</button>
+        <div id="pac-status"></div>
+        <div id="pac-data" class="data-display" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📈 Dashboard Data</h2>
+        <button onclick="testWorkplanDashboard()">Load Workplan Dashboard</button>
+        <button onclick="testPacDashboard()">Load PAC Dashboard</button>
+        <div id="dashboard-status"></div>
+        <div id="dashboard-data" class="data-display" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function showData(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function testHealth() {
+            showStatus('health-status', '🔄 Testing backend health...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showStatus('health-status', '✅ Backend is healthy and running!', 'success');
+                    showData('health-data', data);
+                } else {
+                    showStatus('health-status', `❌ Health check failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showStatus('health-status', `❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWorkplans() {
+            showStatus('workplans-status', '🔄 Loading workplans from database...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/workplans`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showStatus('workplans-status', `✅ Loaded ${data.workplans.length} workplans from SQLite database!`, 'success');
+                    showData('workplans-data', data);
+                } else {
+                    showStatus('workplans-status', `❌ Failed to load workplans: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showStatus('workplans-status', `❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPacOperations() {
+            showStatus('pac-status', '🔄 Loading PAC operations from database...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/pac/operations`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showStatus('pac-status', `✅ Loaded ${data.operations.length} PAC operations from SQLite database!`, 'success');
+                    showData('pac-data', data);
+                } else {
+                    showStatus('pac-status', `❌ Failed to load PAC operations: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showStatus('pac-status', `❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWorkplanDashboard() {
+            showStatus('dashboard-status', '🔄 Loading workplan dashboard data...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/workplans/dashboard`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showStatus('dashboard-status', `✅ Dashboard data loaded successfully!`, 'success');
+                    showData('dashboard-data', data);
+                } else {
+                    showStatus('dashboard-status', `❌ Failed to load dashboard: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showStatus('dashboard-status', `❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPacDashboard() {
+            showStatus('dashboard-status', '🔄 Loading PAC dashboard data...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/pac/dashboard`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showStatus('dashboard-status', `✅ PAC Dashboard data loaded successfully!`, 'success');
+                    showData('dashboard-data', data);
+                } else {
+                    showStatus('dashboard-status', `❌ Failed to load PAC dashboard: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showStatus('dashboard-status', `❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run health check on page load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 1000);
+        });
+    </script>
+</body>
+</html>

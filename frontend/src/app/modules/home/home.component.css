@@ -1,0 +1,484 @@
+/* FDA Brand Colors and Base Styles */
+.modern-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  margin: 0;
+  padding: 0;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Enhanced FDA Header */
+.fda-header {
+  background: linear-gradient(135deg, #1B2B85 0%, #0071BC 50%, #2d5a4d 100%);
+  color: white;
+  margin: 0;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(27, 43, 133, 0.3);
+  border-bottom: 4px solid #FF6B35;
+}
+
+.header-bar {
+  background: rgba(27, 43, 133, 0.9);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #0071BC;
+  backdrop-filter: blur(10px);
+}
+
+.fda-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #E7F6F8;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  letter-spacing: 0.5px;
+}
+
+.system-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.model-badge {
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.system-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  letter-spacing: 1px;
+}
+
+/* Navigation Bar */
+.nav-bar {
+  background: linear-gradient(135deg, #0071BC 0%, #1B2B85 100%);
+  padding: 0;
+  display: flex;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+  justify-content: space-evenly;
+  align-items: stretch;
+}
+
+.nav-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  color: #E7F6F8;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.nav-btn span {
+  display: block;
+  line-height: 1.2;
+  text-align: center;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.nav-btn i {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.nav-btn:last-child {
+  border-right: none;
+}
+
+.nav-btn:hover {
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.nav-btn.active {
+  background: linear-gradient(135deg, #00A651 0%, #28a745 100%);
+  color: #FFFFFF;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.nav-btn.logout {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: #FFFFFF;
+}
+
+.nav-btn.logout:hover {
+  background: linear-gradient(135deg, #c82333 0%, #a02622 100%);
+  transform: translateY(-2px);
+}
+
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  font-size: 2rem;
+  color: #1B2B85;
+  padding: 25px 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+  border: 3px solid #0071BC;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 113, 188, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.fiscal-year-section {
+  margin-bottom: 30px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e1e1e1;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.fiscal-year-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.fiscal-year-section.current-year {
+  border-color: #0071BC;
+  border-width: 3px;
+}
+
+.fiscal-year-section.upcoming-year {
+  border-color: #FF6B35;
+  border-width: 3px;
+}
+
+.fiscal-year-header {
+  background: linear-gradient(135deg, #1B2B85 0%, #0071BC 100%);
+  padding: 15px 20px;
+  font-size: 18px;
+  color: #FFFFFF;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.current-year .fiscal-year-header {
+  background: linear-gradient(135deg, #0071BC 0%, #00A651 100%);
+}
+
+.upcoming-year .fiscal-year-header {
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+}
+
+.workplan-container {
+  padding: 25px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.workplan-item {
+  display: block;
+  margin-bottom: 15px;
+}
+
+.workplan-link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #1B2B85;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #E7F6F8 0%, #ffffff 100%);
+  border: 2px solid #0071BC;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.workplan-link:hover {
+  background: linear-gradient(135deg, #0071BC 0%, #1B2B85 100%);
+  color: #FFFFFF;
+  transform: translateX(10px);
+  box-shadow: 0 4px 12px rgba(0, 113, 188, 0.3);
+}
+
+.workplan-icon {
+  font-size: 24px;
+  opacity: 0.8;
+}
+
+.workplan-link:hover .workplan-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.workplan-link .underline {
+  flex-grow: 1;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+  transition: all 0.3s ease;
+}
+
+.workplan-link:hover .underline {
+  border-bottom-color: #FFFFFF;
+}
+
+.workplan-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.workplan-status.current {
+  background-color: #00A651;
+  color: #FFFFFF;
+}
+
+.workplan-status.upcoming {
+  background-color: #FF6B35;
+  color: #FFFFFF;
+}
+
+.workplan-link:hover .workplan-status {
+  background-color: #FFFFFF;
+  color: #1B2B85;
+}
+
+.older-workplans-section {
+  padding: 20px 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #e1e1e1;
+  margin-top: 25px;
+}
+
+.select-label {
+  font-size: 16px;
+  color: #1B2B85;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.select-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.workplan-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background-color: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%228%22%20viewBox%3D%220%200%2014%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201L7%207L13%201%22%20stroke%3D%22%23333%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 30px;
+}
+
+.workplan-select:focus {
+  outline: none;
+  border-color: #0071BC;
+  box-shadow: 0 0 0 2px rgba(0, 113, 188, 0.2);
+}
+
+.workplan-select:hover {
+  border-color: #0071BC;
+}
+
+.modern-dashboard {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.top-nav {
+  background-color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.brand-divider {
+  color: #cbd5e0;
+}
+
+.brand-subtitle {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  background-color: transparent;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #f7fafc;
+  color: #2d3748;
+}
+
+.nav-btn.logout {
+  color: #e53e3e;
+}
+
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.welcome-section {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* Navigation hints for workplan links */
+.workplan-nav-hint {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  background: rgba(0, 86, 179, 0.1);
+  color: #0056b3;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.workplan-item:hover .workplan-nav-hint {
+  opacity: 1;
+  transform: translateY(-50%) translateX(-5px);
+}
+
+/* Archive hint styles */
+.archive-hint {
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 8px;
+  color: #0056b3;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 3px solid #0056b3;
+}
+
+.archive-hint i {
+  font-size: 12px;
+}
+
+/* Improve workplan-item positioning for hint */
+.workplan-item {
+  position: relative;
+}
+
+/* Improve modern select styling */
+.modern-select {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  font-size: 16px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 50px;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #0056b3;
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+}
+
+.modern-select:hover {
+  border-color: #0056b3;
+  background-color: #f8f9ff;
+}

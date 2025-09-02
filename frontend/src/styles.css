@@ -1,0 +1,12 @@
+@import '@uswds/uswds/css/uswds.min.css';
+
+:root {
+  --fda-blue: #0071bc;
+  --fda-dark-blue: #205493;
+  --fda-green: #2e8540;
+}
+
+body {
+  margin: 0;
+  font-family: "Public Sans Web", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}

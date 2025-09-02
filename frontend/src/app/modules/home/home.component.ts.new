@@ -1,0 +1,50 @@
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css'],
+  standalone: true,
+  imports: [CommonModule, RouterModule]
+})
+export class HomeComponent implements OnInit {
+  fiscalYears = [
+    { year: 2026, workplan: 'Workplan 0 - 2026.0', totalTasks: 120, completion: 85 },
+    { year: 2025, workplan: 'Workplan 0 - 2025.0', totalTasks: 150, completion: 92 }
+  ];
+
+  selectedWorkplan: string = '';
+  olderWorkplans: string[] = [
+    'Workplan 2024',
+    'Workplan 2023',
+    'Workplan 2022'
+  ];
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {}
+
+  selectWorkplan(workplan: string): void {
+    console.log('Selected workplan:', workplan);
+    // Add navigation or other logic here
+    this.selectedWorkplan = workplan;
+  }
+
+  onWorkplanSelect(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    if (select.value) {
+      this.selectWorkplan(select.value);
+    }
+  }
+
+  navigateToPPS(): void {
+    if (this.selectedWorkplan) {
+      this.router.navigate(['/pps'], { 
+        queryParams: { workplan: this.selectedWorkplan }
+      });
+    }
+  }
+}
