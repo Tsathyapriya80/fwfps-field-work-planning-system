@@ -47,6 +47,23 @@ instance/
 # *.sqlite
 # *.sqlite3
 
+# H2 Database files (Java backend)
+*.mv.db
+*.trace.db
+fwfps.db
+fwfps.mv.db
+
+# Java & Maven
+backend/target/
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+.classpath
+.project
+.settings/
+
 # Node.js & npm
 node_modules/
 npm-debug.log*

@@ -1,515 +1,593 @@
 # FWFPS API Documentation
 
-## Base URL
+## Base URLs
+
+### Java Spring Boot Backend (Primary)
 ```
-Development: http://localhost:3001/api
+Development: http://localhost:8090/api
 Production: https://your-domain.com/api
 ```
 
-## Authentication
-All API endpoints (except health check) require session-based authentication.
+### Python Flask Backend (Alternative)
+```
+Development: http://localhost:5001/api  
+Production: https://your-python-domain.com/api
+```
 
-### Login Required
-Session cookie must be present in requests. Obtain by calling `/auth/login`.
+## Backend Architecture Overview
+
+The FWFPS system now supports dual backend architectures:
+
+1. **Java Spring Boot Backend** - Primary implementation with H2 database
+2. **Python Flask Backend** - Alternative implementation with SQLite database
+
+Both backends provide identical REST API interfaces for seamless frontend integration.
+
+## Authentication
+Currently implementing session-based authentication. All API endpoints require valid session tokens.
+
+**Note:** Authentication implementation is planned for future iterations.
 
 ---
 
-## API Endpoints Reference
+## Java Spring Boot API Endpoints
 
 ### 🏥 Health & Status
 
-#### GET /health
-System health check - **No authentication required**
+#### GET /actuator/health  
+Spring Boot actuator health check - **No authentication required**
 
 **Response:**
 ```json
 {
-  "status": "healthy",
-  "message": "FWFPS Field Work Force Planning System Backend API is running",
-  "timestamp": "2025-08-29T15:21:11.848Z",
-  "version": "1.0.0"
+  "status": "UP"
 }
 ```
 
 ---
 
-### 🔐 Authentication
+### 📋 Workplans Management
 
-#### POST /auth/login
-User authentication
+#### GET /api/workplans
+Get all workplans
 
-**Request:**
+**Response:**
 ```json
-{
-  "username": "admin",
-  "password": "admin123"
-}
-```
-
-**Response (Success):**
-```json
-{
-  "success": true,
-  "message": "Login successful",
-  "user": {
+[
+  {
     "id": 1,
-    "username": "admin",
-    "email": "admin@fwfps.gov",
-    "role": "admin"
+    "title": "Field Survey Q1 2025",
+    "description": "Quarterly field survey operations",
+    "status": "ACTIVE",
+    "priority": "HIGH",
+    "startDate": "2025-01-01T00:00:00",
+    "endDate": "2025-03-31T23:59:59",
+    "assignedTo": "John Doe",
+    "progress": 65,
+    "taskCount": 12
   }
-}
+]
 ```
 
-**Response (Error):**
-```json
-{
-  "success": false,
-  "error": "Invalid username or password"
-}
-```
+#### GET /api/workplans/{id}
+Get workplan by ID
 
-#### POST /auth/logout
-End user session
+**Parameters:**
+- `id` (path): Workplan ID (integer)
 
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Logged out successfully"
+  "id": 1,
+  "title": "Field Survey Q1 2025",
+  "description": "Quarterly field survey operations",
+  "status": "ACTIVE",
+  "priority": "HIGH",
+  "startDate": "2025-01-01T00:00:00",
+  "endDate": "2025-03-31T23:59:59",
+  "assignedTo": "John Doe",
+  "progress": 65,
+  "taskCount": 12
 }
 ```
 
-#### GET /auth/profile
-Get current user profile
-
-**Response:**
-```json
-{
-  "success": true,
-  "user": {
-    "id": 1,
-    "username": "admin",
-    "email": "admin@fwfps.gov",
-    "role": "admin",
-    "created_at": "2025-08-29T10:00:00.000Z"
-  }
-}
-```
-
----
-
-### 📊 Workplans Management
-
-#### GET /workplans
-List all workplans
-
-**Response:**
-```json
-{
-  "success": true,
-  "workplans": [
-    {
-      "id": 1,
-      "title": "Northern Region Wildlife Survey 2025",
-      "description": "Comprehensive wildlife population assessment for northern regions",
-      "status": "active",
-      "created_by": 1,
-      "start_date": "2025-03-01",
-      "end_date": "2025-09-30",
-      "budget": 125000.00,
-      "priority": "high",
-      "created_at": "2025-01-15T08:00:00.000Z",
-      "updated_at": "2025-01-15T08:00:00.000Z"
-    }
-  ]
-}
-```
-
-#### POST /workplans
+#### POST /api/workplans
 Create new workplan
 
 **Request:**
 ```json
 {
-  "title": "New Survey Project",
-  "description": "Description of the project",
-  "status": "draft",
-  "start_date": "2025-04-01",
-  "end_date": "2025-10-31",
-  "budget": 75000.00,
-  "priority": "medium"
+  "title": "Field Survey Q1 2025",
+  "description": "Quarterly field survey operations",
+  "status": "ACTIVE",
+  "priority": "HIGH",
+  "startDate": "2025-01-01T00:00:00",
+  "endDate": "2025-03-31T23:59:59",
+  "assignedTo": "John Doe",
+  "progress": 0,
+  "taskCount": 12
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Workplan created successfully",
-  "workplan": {
-    "id": 4,
-    "title": "New Survey Project",
-    "created_by": 1,
-    "created_at": "2025-08-29T15:30:00.000Z"
-  }
+  "id": 1,
+  "title": "Field Survey Q1 2025",
+  "description": "Quarterly field survey operations",
+  "status": "ACTIVE",
+  "priority": "HIGH",
+  "startDate": "2025-01-01T00:00:00",
+  "endDate": "2025-03-31T23:59:59",
+  "assignedTo": "John Doe",
+  "progress": 0,
+  "taskCount": 12
 }
 ```
 
-#### PUT /workplans/:id
+#### PUT /api/workplans/{id}
 Update existing workplan
+
+**Parameters:**
+- `id` (path): Workplan ID (integer)
 
 **Request:**
 ```json
 {
-  "title": "Updated Project Title",
-  "status": "active",
-  "budget": 85000.00
+  "title": "Updated Field Survey Q1 2025",
+  "description": "Updated quarterly field survey operations",
+  "status": "IN_PROGRESS",
+  "priority": "HIGH",
+  "startDate": "2025-01-01T00:00:00",
+  "endDate": "2025-03-31T23:59:59",
+  "assignedTo": "Jane Smith",
+  "progress": 75,
+  "taskCount": 12
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Workplan updated successfully"
+  "id": 1,
+  "title": "Updated Field Survey Q1 2025",
+  "description": "Updated quarterly field survey operations",
+  "status": "IN_PROGRESS",
+  "priority": "HIGH",
+  "startDate": "2025-01-01T00:00:00",
+  "endDate": "2025-03-31T23:59:59",
+  "assignedTo": "Jane Smith",
+  "progress": 75,
+  "taskCount": 12
 }
 ```
 
-#### DELETE /workplans/:id
+#### DELETE /api/workplans/{id}
 Delete workplan
 
+**Parameters:**
+- `id` (path): Workplan ID (integer)
+
 **Response:**
 ```json
 {
-  "success": true,
   "message": "Workplan deleted successfully"
-}
-```
-
-#### GET /workplans/dashboard
-Get workplan dashboard statistics
-
-**Response:**
-```json
-{
-  "success": true,
-  "dashboard": {
-    "total_workplans": 3,
-    "active_workplans": 2,
-    "total_budget": 350000.00,
-    "active_budget": 250000.00,
-    "status_breakdown": {
-      "active": 2,
-      "draft": 1,
-      "completed": 0
-    },
-    "priority_breakdown": {
-      "high": 1,
-      "medium": 1,
-      "low": 1
-    }
-  }
 }
 ```
 
 ---
 
-### 🔍 PAC Operations
+### 🏭 PAC Operations Management
 
-#### GET /pac/operations
-List all PAC operations
+#### GET /api/pac-operations
+Get all PAC operations
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "operationType": "INSPECTION",
+    "facilityName": "Main Processing Plant",
+    "facilityId": "MPP-001",
+    "facilityAddress": "123 Industrial Ave, City, State",
+    "operationDate": "2025-09-15T09:00:00",
+    "status": "SCHEDULED",
+    "priority": "HIGH",
+    "inspector": "John Inspector",
+    "notes": "Regular quarterly inspection"
+  }
+]
+```
+
+#### GET /api/pac-operations/{id}
+Get PAC operation by ID
+
+**Parameters:**
+- `id` (path): PAC Operation ID (integer)
 
 **Response:**
 ```json
 {
-  "success": true,
-  "operations": [
-    {
-      "id": 1,
-      "workplan_id": 1,
-      "operation_name": "Deer Population Control - Zone A",
-      "operation_type": "Population Control",
-      "status": "active",
-      "target_species": "White-tailed Deer",
-      "location": "Northern Forest Reserve - Zone A",
-      "estimated_cost": 25000.00,
-      "actual_cost": 23500.00,
-      "start_date": "2025-03-15",
-      "end_date": "2025-05-15",
-      "notes": "Focus on overpopulated areas near agricultural zones",
-      "created_at": "2025-02-01T09:00:00.000Z",
-      "updated_at": "2025-03-20T14:30:00.000Z"
-    }
-  ]
+  "id": 1,
+  "operationType": "INSPECTION",
+  "facilityName": "Main Processing Plant",
+  "facilityId": "MPP-001",
+  "facilityAddress": "123 Industrial Ave, City, State",
+  "operationDate": "2025-09-15T09:00:00",
+  "status": "SCHEDULED",
+  "priority": "HIGH",
+  "inspector": "John Inspector",
+  "notes": "Regular quarterly inspection"
 }
 ```
 
-#### POST /pac/operations
+#### POST /api/pac-operations
 Create new PAC operation
 
 **Request:**
 ```json
 {
-  "workplan_id": 1,
-  "operation_name": "Bear Monitoring Survey",
-  "operation_type": "Population Assessment",
-  "status": "planned",
-  "target_species": "Black Bear",
-  "location": "Eastern Mountain Range",
-  "estimated_cost": 15000.00,
-  "start_date": "2025-06-01",
-  "end_date": "2025-08-31",
-  "notes": "Annual bear population count and tracking"
+  "operationType": "INSPECTION",
+  "facilityName": "Main Processing Plant",
+  "facilityId": "MPP-001",
+  "facilityAddress": "123 Industrial Ave, City, State",
+  "operationDate": "2025-09-15T09:00:00",
+  "status": "SCHEDULED",
+  "priority": "HIGH",
+  "inspector": "John Inspector",
+  "notes": "Regular quarterly inspection"
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "PAC operation created successfully",
-  "operation": {
-    "id": 5,
-    "operation_name": "Bear Monitoring Survey",
-    "created_at": "2025-08-29T15:45:00.000Z"
-  }
+  "id": 1,
+  "operationType": "INSPECTION",
+  "facilityName": "Main Processing Plant",
+  "facilityId": "MPP-001",
+  "facilityAddress": "123 Industrial Ave, City, State",
+  "operationDate": "2025-09-15T09:00:00",
+  "status": "SCHEDULED",
+  "priority": "HIGH",
+  "inspector": "John Inspector",
+  "notes": "Regular quarterly inspection"
 }
 ```
 
-#### PUT /pac/operations/:id
+#### PUT /api/pac-operations/{id}
 Update PAC operation
+
+**Parameters:**
+- `id` (path): PAC Operation ID (integer)
 
 **Request:**
 ```json
 {
-  "status": "completed",
-  "actual_cost": 14750.00,
-  "notes": "Survey completed successfully. 47 bears counted."
+  "operationType": "INSPECTION",
+  "facilityName": "Main Processing Plant",
+  "facilityId": "MPP-001",
+  "facilityAddress": "123 Industrial Ave, City, State",
+  "operationDate": "2025-09-15T14:00:00",
+  "status": "IN_PROGRESS",
+  "priority": "HIGH",
+  "inspector": "John Inspector",
+  "notes": "Regular quarterly inspection - rescheduled to afternoon"
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "message": "PAC operation updated successfully"
-}
-```
-
-#### DELETE /pac/operations/:id
+#### DELETE /api/pac-operations/{id}
 Delete PAC operation
 
+**Parameters:**
+- `id` (path): PAC Operation ID (integer)
+
 **Response:**
 ```json
 {
-  "success": true,
   "message": "PAC operation deleted successfully"
 }
 ```
 
-#### GET /pac/dashboard
-Get PAC operations dashboard statistics
+---
+
+### 🔧 PPS Operations Management
+
+#### GET /api/pps-operations
+Get all PPS operations
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "ppsName": "North District PPS",
+    "location": "North Industrial District",
+    "status": "OPERATIONAL",
+    "capacity": 150,
+    "lastInspection": "2025-08-15T10:00:00"
+  }
+]
+```
+
+#### GET /api/pps-operations/{id}
+Get PPS operation by ID
+
+**Parameters:**
+- `id` (path): PPS Operation ID (integer)
 
 **Response:**
 ```json
 {
-  "success": true,
-  "dashboard": {
-    "total_operations": 4,
-    "active_operations": 2,
-    "completed_operations": 1,
-    "total_estimated_cost": 95000.00,
-    "total_actual_cost": 78500.00,
-    "status_breakdown": {
-      "planned": 1,
-      "active": 2,
-      "completed": 1,
-      "cancelled": 0
-    },
-    "operation_types": {
-      "Population Assessment": 2,
-      "Population Control": 1,
-      "Habitat Management": 1
-    },
-    "species_breakdown": {
-      "White-tailed Deer": 1,
-      "Elk": 1,
-      "Black Bear": 1,
-      "Various": 1
-    }
+  "id": 1,
+  "ppsName": "North District PPS",
+  "location": "North Industrial District",
+  "status": "OPERATIONAL",
+  "capacity": 150,
+  "lastInspection": "2025-08-15T10:00:00"
+}
+```
+
+#### POST /api/pps-operations
+Create new PPS operation
+
+**Request:**
+```json
+{
+  "ppsName": "South District PPS",
+  "location": "South Industrial District",
+  "status": "OPERATIONAL",
+  "capacity": 200,
+  "lastInspection": "2025-09-01T10:00:00"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 2,
+  "ppsName": "South District PPS",
+  "location": "South Industrial District",
+  "status": "OPERATIONAL",
+  "capacity": 200,
+  "lastInspection": "2025-09-01T10:00:00"
+}
+```
+
+#### PUT /api/pps-operations/{id}
+Update PPS operation
+
+**Parameters:**
+- `id` (path): PPS Operation ID (integer)
+
+**Request:**
+```json
+{
+  "ppsName": "North District PPS - Updated",
+  "location": "North Industrial District",
+  "status": "MAINTENANCE",
+  "capacity": 175,
+  "lastInspection": "2025-09-03T10:00:00"
+}
+```
+
+#### DELETE /api/pps-operations/{id}
+Delete PPS operation
+
+**Parameters:**
+- `id` (path): PPS Operation ID (integer)
+
+**Response:**
+```json
+{
+  "message": "PPS operation deleted successfully"
+}
+```
+
+---
+
+### ⚙️ General Operations Management
+
+#### GET /api/operations
+Get all operations
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "operationName": "Field Survey Operation",
+    "operationType": "SURVEY",
+    "status": "ACTIVE",
+    "description": "Monthly field survey across all districts",
+    "startDate": "2025-09-01T08:00:00",
+    "endDate": "2025-09-30T18:00:00"
   }
-}
+]
 ```
 
----
+#### GET /api/operations/{id}
+Get operation by ID
 
-## Error Responses
+**Parameters:**
+- `id` (path): Operation ID (integer)
 
-### Standard Error Format
+#### POST /api/operations
+Create new operation
+
+**Request:**
 ```json
 {
-  "success": false,
-  "error": "Error message describing what went wrong",
-  "code": "ERROR_CODE",
-  "timestamp": "2025-08-29T15:50:00.000Z"
+  "operationName": "Emergency Response Operation",
+  "operationType": "EMERGENCY",
+  "status": "ACTIVE",
+  "description": "Emergency response for facility incident",
+  "startDate": "2025-09-03T12:00:00",
+  "endDate": "2025-09-04T12:00:00"
 }
 ```
 
-### Common HTTP Status Codes
+#### PUT /api/operations/{id}
+Update operation
 
-| Status | Meaning | Example Response |
-|--------|---------|------------------|
-| **200** | Success | Request completed successfully |
-| **201** | Created | Resource created successfully |
-| **400** | Bad Request | Invalid request parameters |
-| **401** | Unauthorized | Authentication required |
-| **403** | Forbidden | Access denied |
-| **404** | Not Found | Resource not found |
-| **500** | Internal Server Error | Server error occurred |
+#### DELETE /api/operations/{id}
+Delete operation
 
-### Error Examples
+---
 
-#### 401 Unauthorized
+## Error Handling
+
+All endpoints return standard HTTP status codes:
+
+- `200 OK` - Successful GET, PUT requests
+- `201 Created` - Successful POST requests
+- `204 No Content` - Successful DELETE requests
+- `400 Bad Request` - Invalid request data
+- `404 Not Found` - Resource not found
+- `500 Internal Server Error` - Server error
+
+**Error Response Format:**
 ```json
 {
-  "success": false,
-  "error": "Authentication required. Please log in.",
-  "code": "AUTH_REQUIRED"
-}
-```
-
-#### 404 Not Found
-```json
-{
-  "success": false,
-  "error": "Workplan with ID 999 not found",
-  "code": "RESOURCE_NOT_FOUND"
-}
-```
-
-#### 400 Bad Request
-```json
-{
-  "success": false,
-  "error": "Validation failed: title is required",
-  "code": "VALIDATION_ERROR"
+  "timestamp": "2025-09-03T10:30:00.000+00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed for field 'title'",
+  "path": "/api/workplans"
 }
 ```
 
 ---
 
-## Data Models
+## Data Types and Validation
 
-### User
-```typescript
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  password: string;  // Hashed
-  role: 'admin' | 'user';
-  created_at: string;
-}
-```
+### Common Field Types
+- **ID Fields**: Integer (auto-generated primary keys)
+- **Text Fields**: String (required fields cannot be empty)
+- **Date Fields**: ISO 8601 format (`2025-09-03T10:30:00`)
+- **Status Fields**: Enum values (e.g., ACTIVE, COMPLETED, SCHEDULED)
+- **Priority Fields**: Enum values (HIGH, MEDIUM, LOW)
 
-### Workplan
-```typescript
-interface Workplan {
-  id: number;
-  title: string;
-  description?: string;
-  status: 'draft' | 'active' | 'completed' | 'cancelled';
-  created_by: number;
-  start_date?: string;
-  end_date?: string;
-  budget?: number;
-  priority: 'low' | 'medium' | 'high';
-  created_at: string;
-  updated_at: string;
-}
-```
+### Status Enums
+- **Workplan Status**: `ACTIVE`, `COMPLETED`, `PLANNED`, `IN_PROGRESS`, `CANCELLED`
+- **PAC Operation Status**: `SCHEDULED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`
+- **PPS Status**: `OPERATIONAL`, `MAINTENANCE`, `OFFLINE`, `DECOMMISSIONED`
+- **General Operation Status**: `ACTIVE`, `COMPLETED`, `PENDING`, `CANCELLED`
 
-### PAC Operation
-```typescript
-interface PacOperation {
-  id: number;
-  workplan_id?: number;
-  operation_name: string;
-  operation_type: string;
-  status: 'planned' | 'active' | 'completed' | 'cancelled';
-  target_species?: string;
-  location?: string;
-  estimated_cost?: number;
-  actual_cost?: number;
-  start_date?: string;
-  end_date?: string;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
+### Priority Levels
+- `HIGH`: Critical priority operations
+- `MEDIUM`: Standard priority operations  
+- `LOW`: Non-critical operations
+
+---
+
+## Database Configuration
+
+### H2 Database Console
+- **URL**: `http://localhost:8090/h2-console`
+- **JDBC URL**: `jdbc:h2:file:./backend-db`
+- **Username**: `sa`
+- **Password**: (leave empty)
+
+### Connection Settings
+```properties
+# H2 Database Configuration
+spring.datasource.url=jdbc:h2:file:./backend-db
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# JPA Configuration
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# H2 Console (for development)
+spring.h2.console.enabled=true
 ```
 
 ---
 
-## Testing
+## Testing Examples
 
-### Using curl
-```bash
-# Health check
-curl http://localhost:3001/api/health
+### PowerShell Testing Scripts
+```powershell
+# Test Workplan Creation
+$workplan = @{
+    title = "Test Workplan"
+    description = "Testing API"
+    status = "ACTIVE"
+    priority = "HIGH"
+    startDate = "2025-09-01T08:00:00"
+    endDate = "2025-09-30T18:00:00"
+    assignedTo = "Test User"
+    progress = 0
+    taskCount = 5
+}
 
-# Login
-curl -X POST http://localhost:3001/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}' \
-  -c cookies.txt
+$response = Invoke-RestMethod -Uri "http://localhost:8090/api/workplans" -Method Post -Body ($workplan | ConvertTo-Json) -ContentType "application/json"
+Write-Output $response
 
-# Get workplans (using saved cookies)
-curl http://localhost:3001/api/workplans -b cookies.txt
-```
+# Test PAC Operation Creation
+$pacOperation = @{
+    operationType = "INSPECTION"
+    facilityName = "Test Facility"
+    facilityId = "TF-001"
+    facilityAddress = "123 Test St"
+    operationDate = "2025-09-15T09:00:00"
+    status = "SCHEDULED"
+    priority = "HIGH"
+    inspector = "Test Inspector"
+    notes = "Test inspection"
+}
 
-### Using JavaScript/Fetch
-```javascript
-// Login
-const response = await fetch('http://localhost:3001/api/auth/login', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  credentials: 'include',
-  body: JSON.stringify({
-    username: 'admin',
-    password: 'admin123'
-  })
-});
-
-// Get workplans
-const workplans = await fetch('http://localhost:3001/api/workplans', {
-  credentials: 'include'
-});
+$response = Invoke-RestMethod -Uri "http://localhost:8090/api/pac-operations" -Method Post -Body ($pacOperation | ConvertTo-Json) -ContentType "application/json"
+Write-Output $response
 ```
 
 ---
 
-## Sample Data
+## Migration from Python Backend
 
-The database comes pre-loaded with sample data:
+To switch from Python Flask backend to Java Spring Boot:
 
-### Default Users
-- **Username**: `admin`, **Password**: `admin123` (Admin role)
-- **Username**: `user1`, **Password**: `user123` (User role)
+1. **Update Frontend Configuration**:
+   ```typescript
+   // In src/app/services/api.service.ts
+   private baseUrl = 'http://localhost:8090/api'; // Changed from 5001 to 8090
+   ```
 
-### Sample Workplans
-- Northern Region Wildlife Survey 2025 (Active)
-- Coastal Ecosystem Monitoring Project (Active)
-- Mountain Region Biodiversity Study (Draft)
+2. **Data Migration**: 
+   - Export data from SQLite (Python backend)
+   - Import into H2 database (Java backend)
+   - Both use similar schema structures
 
-### Sample PAC Operations
-- Deer Population Control - Zone A (Active)
-- Elk Habitat Restoration (Planned)
-- Coastal Bird Survey (Completed)
-- Bear Monitoring Program (Active)
+3. **API Compatibility**:
+   - Endpoint URLs remain consistent
+   - JSON response formats are identical
+   - HTTP methods and status codes unchanged
 
 ---
 
-*This API documentation is current as of August 29, 2025. For the most up-to-date information, refer to the application source code.*
+## Development Notes
+
+### Spring Boot Features Used
+- **Spring Data JPA**: For database operations
+- **Spring Web**: For REST API endpoints  
+- **H2 Database**: For development database
+- **Spring Boot Actuator**: For health checks
+- **CORS Configuration**: For cross-origin requests
+
+### Auto-Generated Features
+- **Primary Keys**: All entities use `@GeneratedValue` for auto-incrementing IDs
+- **Database Schema**: Tables are auto-created from JPA entities
+- **CRUD Operations**: Repository pattern provides automatic CRUD methods
+- **JSON Serialization**: Automatic conversion between Java objects and JSON
+
+### Port Configuration
+- **Java Backend**: 8090 (configured in `application.properties`)
+- **Angular Frontend**: 4300 (configured in `angular.json`)
+- **H2 Console**: 8090 (same as backend)
+
+This ensures no conflicts with existing Python backend running on port 5001.

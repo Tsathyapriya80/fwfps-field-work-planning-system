@@ -7,16 +7,18 @@ FWFPS (Field Work Force Planning System) is a comprehensive full-stack web appli
 ## 🏗️ Architecture
 
 ### Technology Stack
-- **Frontend**: Angular 17+ with TypeScript
-- **Backend**: Python Flask with SQLAlchemy ORM
-- **Database**: SQLite for development (easily scalable to PostgreSQL/MySQL)
+- **Frontend**: Angular 18+ with TypeScript
+- **Backend Options**: 
+  - **Java Spring Boot** with JPA/Hibernate (Primary - Port 8090)
+  - **Python Flask** with SQLAlchemy ORM (Alternative - Port 5001)
+- **Database**: H2 Database (Java), SQLite (Python)
 - **Authentication**: Session-based with password hashing
 - **API**: RESTful APIs with CORS support
 
 ### Project Structure
 ```
-my-angular-springboot-app/
-├── frontend/                 # Angular application
+fwfps-java-version/
+├── frontend/                 # Angular application (Port 4300)
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── auth/        # Authentication components
@@ -25,21 +27,35 @@ my-angular-springboot-app/
 │   │   │   │   ├── dashboard/
 │   │   │   │   ├── home/
 │   │   │   │   ├── pac/
+│   │   │   │   ├── model/
 │   │   │   │   └── pps/
 │   │   │   └── services/    # API services
 │   │   └── environments/
-├── python-backend/          # Flask API server
+├── backend/                 # Java Spring Boot API server (Port 8090)
+│   ├── src/main/java/com/example/backend/
+│   │   ├── BackendApplication.java  # Main Spring Boot application
+│   │   ├── config/         # Configuration classes
+│   │   ├── controller/     # REST controllers
+│   │   ├── entity/        # JPA entities
+│   │   └── repository/    # JPA repositories
+│   ├── src/main/resources/
+│   │   └── application.properties  # Application configuration
+│   └── pom.xml            # Maven configuration
+├── python-backend/          # Flask API server (Alternative - Port 5001)
 │   ├── app_simple.py       # Main Flask application
 │   ├── fwfps.db           # SQLite database
 │   ├── models/            # Database models
 │   └── routes/            # API route handlers
+├── node-backend/           # Node.js API server (Alternative)
 └── test_api.py            # API testing script
 ```
 
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
-- Python 3.8+
+- Java 11+ (for Spring Boot backend)
+- Maven 3.6+ (for Java build)
+- Python 3.8+ (for alternative Python backend)
 - Node.js 18+
 - npm or yarn
 - Git
@@ -47,10 +63,30 @@ my-angular-springboot-app/
 ### 1. Clone the Repository
 ```bash
 git clone <repository-url>
-cd my-angular-springboot-app
+cd fwfps-java-version
 ```
 
-### 2. Backend Setup (Python Flask)
+### 2. Backend Setup (Java Spring Boot - Primary)
+```bash
+# Navigate to Java backend directory
+cd backend
+
+# Build and run with Maven
+mvn clean install
+mvn spring-boot:run
+
+# Alternative: Run the JAR directly
+java -jar target/backend-0.0.1-SNAPSHOT.jar
+```
+
+The Spring Boot server will start on `http://localhost:8090`
+
+**H2 Database Console:** `http://localhost:8090/h2-console`
+- JDBC URL: `jdbc:h2:file:./backend-db`
+- User: `sa`
+- Password: (leave empty)
+
+### 3. Backend Setup (Python Flask - Alternative)
 ```bash
 # Create virtual environment
 python -m venv .venv
@@ -70,7 +106,7 @@ python app_simple.py
 
 The Flask server will start on `http://127.0.0.1:5001`
 
-### 3. Frontend Setup (Angular)
+### 4. Frontend Setup (Angular)
 ```bash
 # Navigate to frontend directory
 cd frontend
@@ -78,18 +114,25 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start development server
-ng serve
+# Start development server (configured for Java backend)
+ng serve --port 4300
 ```
 
-The Angular app will be available at `http://localhost:4200`
+The Angular app will be available at `http://localhost:4300`
+
+**Note:** Frontend is configured to use Java backend by default. To switch to Python backend, update `baseUrl` in `src/app/services/api.service.ts`
 
 ## 📊 Database Schema
 
-### Users Table
-- `id`: Primary key
+The application supports dual database backends:
+
+### Java Spring Boot (H2 Database)
+Auto-generated JPA entities with the following structure:
+
+**Users Table (AUTO-GENERATED)**
+- `id`: Primary key (auto-generated)
 - `username`: Unique username
-- `password_hash`: Encrypted password
+- `password_hash`: Encrypted password  
 - `email`: User email
 - `full_name`: User's full name
 - `role`: User role (admin, analyst, inspector)
@@ -97,8 +140,8 @@ The Angular app will be available at `http://localhost:4200`
 - `is_active`: Account status
 - `created_at`, `last_login`: Timestamps
 
-### Workplans Table
-- `id`: Primary key
+**Workplans Table (AUTO-GENERATED)**
+- `id`: Primary key (auto-generated)
 - `title`: Workplan title
 - `description`: Detailed description
 - `status`: Current status (active, completed, planned)
@@ -108,8 +151,8 @@ The Angular app will be available at `http://localhost:4200`
 - `progress`: Completion percentage
 - `task_count`: Number of tasks
 
-### PAC Operations Table
-- `id`: Primary key
+**PAC Operations Table (AUTO-GENERATED)**
+- `id`: Primary key (auto-generated)
 - `operation_type`: Type of operation
 - `facility_name`: Target facility
 - `facility_id`: Facility identifier
@@ -120,24 +163,53 @@ The Angular app will be available at `http://localhost:4200`
 - `inspector`: Assigned inspector
 - `notes`: Additional notes
 
+**PPS Operations Table (AUTO-GENERATED)**
+- `id`: Primary key (auto-generated)
+- `pps_name`: PPS facility name
+- `location`: Facility location
+- `status`: Operational status
+- `capacity`: Facility capacity
+- `last_inspection`: Last inspection date
+
+### Python Flask (SQLite Database)
+Manual schema creation with similar structure (see python-backend documentation).
+
 ## 🔧 API Endpoints
 
-### Authentication
+### Java Spring Boot Backend (Port 8090)
+All endpoints follow REST conventions with auto-generated CRUD operations:
+
+**Authentication**
 - `POST /api/auth/login` - User authentication
 - `POST /api/auth/logout` - User logout
 
-### Workplans
+**Workplans**
 - `GET /api/workplans` - List all workplans
-- `GET /api/workplans/dashboard` - Dashboard statistics
+- `GET /api/workplans/{id}` - Get workplan by ID
 - `POST /api/workplans` - Create new workplan
-- `PUT /api/workplans/:id` - Update workplan
-- `DELETE /api/workplans/:id` - Delete workplan
+- `PUT /api/workplans/{id}` - Update workplan
+- `DELETE /api/workplans/{id}` - Delete workplan
 
-### PAC Operations
-- `GET /api/pac/operations` - List PAC operations
-- `POST /api/pac/operations` - Create PAC operation
-- `PUT /api/pac/operations/:id` - Update operation
-- `DELETE /api/pac/operations/:id` - Delete operation
+**PAC Operations**
+- `GET /api/pac-operations` - List PAC operations
+- `GET /api/pac-operations/{id}` - Get PAC operation by ID
+- `POST /api/pac-operations` - Create PAC operation
+- `PUT /api/pac-operations/{id}` - Update operation
+- `DELETE /api/pac-operations/{id}` - Delete operation
+
+**PPS Operations**
+- `GET /api/pps-operations` - List PPS operations
+- `GET /api/pps-operations/{id}` - Get PPS operation by ID
+- `POST /api/pps-operations` - Create PPS operation
+- `PUT /api/pps-operations/{id}` - Update operation
+- `DELETE /api/pps-operations/{id}` - Delete operation
+
+**Operations**
+- `GET /api/operations` - List all operations
+- `GET /api/operations/{id}` - Get operation by ID
+- `POST /api/operations` - Create operation
+- `PUT /api/operations/{id}` - Update operation
+- `DELETE /api/operations/{id}` - Delete operation
 
 ### System
 - `GET /api/health` - Health check endpoint

@@ -2,11 +2,11 @@
 
 ## 📋 Executive Summary
 
-The FWFPS application is a comprehensive full-stack web solution designed for field workforce planning and operations management. This proof-of-concept demonstrates a modern architecture using Angular frontend with Python Flask backend and SQLite database persistence.
+The FWFPS application is a comprehensive full-stack web solution designed for field workforce planning and operations management. This implementation now supports dual backend architectures - Java Spring Boot (primary) and Python Flask (alternative) - providing flexibility and scalability options.
 
-**Architecture Overview:** Single Page Application (SPA) with RESTful API backend  
-**Development Status:** Proof of Concept - Production Ready  
-**Last Updated:** September 2, 2025
+**Architecture Overview:** Single Page Application (SPA) with dual RESTful API backend options  
+**Development Status:** Production Ready with Dual Backend Support  
+**Last Updated:** September 3, 2025
 
 ---
 
@@ -15,7 +15,14 @@ The FWFPS application is a comprehensive full-stack web solution designed for fi
 ### High-Level Architecture Diagram
 ```
 ┌─────────────────┐    HTTP/REST API    ┌─────────────────┐    SQL Queries    ┌─────────────────┐
-│                 │   (Port 4200 →      │                 │   (SQLAlchemy)    │                 │
+│                 │   (Port 4300 →      │                 │   (JPA/Hibernate) │                 │
+│  Angular        │    Port 8090)       │  Java Spring    │ ← → H2 Database  │  H2 Database    │
+│  Frontend       │ ← ─ ─ ─ ─ ─ ─ ─ ─ → │  Boot Backend   │   (backend-db)    │  (File-based)   │
+│  (SPA)          │                     │  (Primary)      │                   │                 │
+└─────────────────┘                     └─────────────────┘                   └─────────────────┘
+                           Alternative:
+┌─────────────────┐    HTTP/REST API    ┌─────────────────┐    SQL Queries    ┌─────────────────┐
+│                 │   (Port 4300 →      │                 │   (SQLAlchemy)    │                 │
 │  Angular        │    Port 5001)       │  Python         │ ← → SQLite      │  SQLite         │
 │  Frontend       │ ← ─ ─ ─ ─ ─ ─ ─ ─ → │  Flask          │   (fwfps.db)      │  Database       │
 │  (SPA)          │                     │  Backend        │                   │                 │
@@ -29,13 +36,142 @@ The FWFPS application is a comprehensive full-stack web solution designed for fi
 | **Frontend** | Angular | ~18.2.0 | Single Page Application Framework |
 | **UI Framework** | Bootstrap | 5.3.x | Responsive Design & Components |
 | **Icons** | Font Awesome | 6.x | Icon Library |
-| **Backend** | Python | 3.8+ | Programming Language |
-| **Web Framework** | Flask | 2.3+ | RESTful API Server |
-| **ORM** | SQLAlchemy | 2.0+ | Object Relational Mapping |
-| **Database** | SQLite | 3.x | Embedded SQL Database |
-| **Authentication** | Flask-Session | 0.5+ | Session Management |
+| **Primary Backend** | Java | 11+ | Programming Language |
+| **Web Framework** | Spring Boot | 2.7.18 | RESTful API Server |
+| **ORM** | JPA/Hibernate | 5.6+ | Object Relational Mapping |
+| **Primary Database** | H2 Database | 2.1.214 | Embedded SQL Database |
+| **Alternative Backend** | Python | 3.8+ | Programming Language |
+| **Alt Web Framework** | Flask | 2.3+ | RESTful API Server |
+| **Alt ORM** | SQLAlchemy | 2.0+ | Object Relational Mapping |
+| **Alt Database** | SQLite | 3.x | Embedded SQL Database |
+| **Authentication** | Spring Security | 5.7+ / Flask-Session | Session Management |
 | **Security** | bcrypt | 4.0+ | Password Hashing |
-| **CORS** | Flask-CORS | 4.0+ | Cross-Origin Resource Sharing |
+| **CORS** | Spring Web / Flask-CORS | Built-in / 4.0+ | Cross-Origin Resource Sharing |
+
+---
+
+## ☕ Java Spring Boot Backend Architecture (Primary)
+
+### Spring Boot Application Structure
+
+```
+backend/src/main/java/com/example/backend/
+├── BackendApplication.java           # Main Spring Boot application class
+├── config/
+│   └── CorsConfig.java              # CORS configuration for cross-origin requests
+├── controller/                       # REST API endpoints
+│   ├── OperationController.java     # General operations endpoints
+│   ├── PACOperationController.java  # PAC operations endpoints
+│   ├── PPSOperationController.java  # PPS operations endpoints
+│   └── WorkplanController.java      # Workplan operations endpoints
+├── entity/                          # JPA database entities
+│   ├── Operation.java               # General operation entity
+│   ├── PACOperation.java           # PAC operation entity
+│   ├── PPSOperation.java           # PPS operation entity
+│   └── Workplan.java               # Workplan entity
+└── repository/                      # JPA data repositories
+    ├── OperationRepository.java     # General operations repository
+    ├── PACOperationRepository.java  # PAC operations repository
+    ├── PPSOperationRepository.java  # PPS operations repository
+    └── WorkplanRepository.java      # Workplan repository
+
+backend/src/main/resources/
+├── application.properties            # Spring Boot configuration
+└── static/                          # Static web resources (if any)
+
+backend/target/                      # Maven build output
+└── backend-0.0.1-SNAPSHOT.jar      # Executable JAR file
+```
+
+### Key Java Backend Features
+
+#### 1. **JPA Entity Classes**
+Auto-generated primary keys and database schema creation:
+
+```java
+@Entity
+@Table(name = "workplans")
+public class Workplan {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String title;
+    private String description;
+    private String status;
+    private String priority;
+    // ... other fields with getters/setters
+}
+```
+
+#### 2. **REST Controllers**
+RESTful API endpoints with automatic JSON serialization:
+
+```java
+@RestController
+@RequestMapping("/api/workplans")
+@CrossOrigin(origins = "http://localhost:4300")
+public class WorkplanController {
+    @GetMapping
+    public List<Workplan> getAllWorkplans() { ... }
+    
+    @PostMapping
+    public Workplan createWorkplan(@RequestBody Workplan workplan) { ... }
+    // ... other CRUD methods
+}
+```
+
+#### 3. **JPA Repositories**
+Automatic CRUD operations with Spring Data JPA:
+
+```java
+@Repository
+public interface WorkplanRepository extends JpaRepository<Workplan, Long> {
+    // Automatic CRUD methods provided
+    // Custom queries can be added here
+}
+```
+
+#### 4. **Database Configuration**
+H2 embedded database with web console access:
+
+```properties
+# H2 Database Configuration
+spring.datasource.url=jdbc:h2:file:./backend-db
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# JPA Configuration
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# H2 Console (for development)
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+# Server Configuration
+server.port=8090
+```
+
+#### 5. **CORS Configuration**
+Cross-origin resource sharing for frontend communication:
+
+```java
+@Configuration
+@EnableWebMvc
+public class CorsConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:4300")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+}
+```
 
 ---
 

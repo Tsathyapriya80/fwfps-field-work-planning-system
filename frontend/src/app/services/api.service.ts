@@ -53,7 +53,7 @@ interface PacOperation {
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly baseUrl = 'http://127.0.0.1:5001/api';
+  private readonly baseUrl = 'http://localhost:8090/api';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 

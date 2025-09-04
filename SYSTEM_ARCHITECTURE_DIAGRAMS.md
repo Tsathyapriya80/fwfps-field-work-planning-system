@@ -6,10 +6,25 @@
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                            FWFPS APPLICATION ECOSYSTEM                      │
 │                         Field Work Force Planning System                    │
+│                              DUAL BACKEND SUPPORT                           │
 └─────────────────────────────────────────────────────────────────────────────┘
 
+PRIMARY ARCHITECTURE (Java Spring Boot):
 ┌─────────────────┐    HTTP Requests     ┌─────────────────┐    SQL Queries    ┌─────────────────┐
-│                 │   (localhost:4200    │                 │   (SQLAlchemy)    │                 │
+│                 │   (localhost:4300    │                 │   (JPA/Hibernate) │                 │
+│   ANGULAR       │    → 127.0.0.1:8090) │   JAVA SPRING   │ ←──────────────→  │   H2 DATABASE   │
+│   FRONTEND      │ ←──────────────────→  │   BOOT BACKEND  │                   │   (File-based)  │
+│                 │    JSON/REST API     │                 │                   │                 │
+│                 │                      │                 │                   │                 │
+│ • UI Components │                      │ • REST Routes   │                   │ • workplans     │
+│ • Services      │                      │ • JPA Entities  │                   │ • pac_operations│
+│ • Routing       │                      │ • Repositories  │                   │ • pps_operations│
+│ • State Mgmt    │                      │ • Auto CRUD     │                   │ • operations    │
+└─────────────────┘                      └─────────────────┘                   └─────────────────┘
+
+ALTERNATIVE ARCHITECTURE (Python Flask):
+┌─────────────────┐    HTTP Requests     ┌─────────────────┐    SQL Queries    ┌─────────────────┐
+│                 │   (localhost:4300    │                 │   (SQLAlchemy)    │                 │
 │   ANGULAR       │    → 127.0.0.1:5001) │   PYTHON        │ ←──────────────→  │   SQLITE        │
 │   FRONTEND      │ ←──────────────────→  │   FLASK         │                   │   DATABASE      │
 │                 │    JSON/REST API     │   BACKEND       │                   │                 │
@@ -22,6 +37,115 @@
 ```
 
 ## Detailed Component Architecture
+
+### JAVA SPRING BOOT BACKEND ARCHITECTURE
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND LAYER                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │     PPS     │  │     PAC     │  │    MODEL    │  │ DASHBOARD   │         │
+│  │   Module    │  │   Module    │  │   Module    │  │   Module    │         │
+│  │             │  │             │  │             │  │             │         │
+│  │ • Workplans │  │ • Operations│  │ • Data      │  │ • Overview  │         │
+│  │ • Planning  │  │ • Personnel │  │   Models    │  │ • Metrics   │         │
+│  │ • Export    │  │ • Tracking  │  │ • Analysis  │  │ • Status    │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘         │
+│          │                │                │                │               │
+│          └────────────────┼────────────────┼────────────────┘               │
+│                           │                │                                │
+│  ┌─────────────────────────┼────────────────┼──────────────────────────────┐ │
+│  │                    API SERVICE LAYER                                    │ │
+│  │                         │                │                              │ │
+│  │  ┌──────────────────────▼────────────────▼────────────────────────────┐ │ │
+│  │  │                     HTTP CLIENT                                    │ │ │
+│  │  │  • Authentication  • Workplans API  • PAC API  • Dashboard API    │ │ │
+│  │  │  • Error Handling  • Session Management  • Type Safety           │ │ │
+│  │  └─────────────────────────────────────────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                       │
+                                       │ HTTP/REST API
+                                       │ JSON Payloads
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     JAVA SPRING BOOT BACKEND LAYER                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                            SPRING WEB LAYER                            │ │
+│  │                                                                         │ │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │ │
+│  │  │  WORKPLAN   │  │     PAC     │  │     PPS     │  │  OPERATION  │     │ │
+│  │  │ CONTROLLER  │  │ CONTROLLER  │  │ CONTROLLER  │  │ CONTROLLER  │     │ │
+│  │  │             │  │             │  │             │  │             │     │ │
+│  │  │ • GET /api  │  │ • GET /api  │  │ • GET /api  │  │ • GET /api  │     │ │
+│  │  │ • POST /api │  │ • POST /api │  │ • POST /api │  │ • POST /api │     │ │
+│  │  │ • PUT /api  │  │ • PUT /api  │  │ • PUT /api  │  │ • PUT /api  │     │ │
+│  │  │ • DELETE    │  │ • DELETE    │  │ • DELETE    │  │ • DELETE    │     │ │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                       │                                     │
+│                                       │ Service Layer Calls                 │
+│                                       ▼                                     │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                         JPA REPOSITORY LAYER                           │ │
+│  │                                                                         │ │
+│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │ │
+│  │  │   Workplan      │  │  PACOperation   │  │  PPSOperation   │         │ │
+│  │  │   Repository    │  │   Repository    │  │   Repository    │         │ │
+│  │  │                 │  │                 │  │                 │         │ │
+│  │  │ • findAll()     │  │ • findAll()     │  │ • findAll()     │         │ │
+│  │  │ • findById()    │  │ • findById()    │  │ • findById()    │         │ │
+│  │  │ • save()        │  │ • save()        │  │ • save()        │         │ │
+│  │  │ • deleteById()  │  │ • deleteById()  │  │ • deleteById()  │         │ │
+│  │  │ • Custom Query  │  │ • Custom Query  │  │ • Custom Query  │         │ │
+│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘         │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                       │                                     │
+│                                       │ JPA/Hibernate ORM                   │
+│                                       ▼                                     │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                            ENTITY LAYER                                │ │
+│  │                                                                         │ │
+│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │ │
+│  │  │   Workplan      │  │  PACOperation   │  │  PPSOperation   │         │ │
+│  │  │    Entity       │  │     Entity      │  │     Entity      │         │ │
+│  │  │                 │  │                 │  │                 │         │ │
+│  │  │ • @Id           │  │ • @Id           │  │ • @Id           │         │ │
+│  │  │ • @Entity       │  │ • @Entity       │  │ • @Entity       │         │ │
+│  │  │ • @Table        │  │ • @Table        │  │ • @Table        │         │ │
+│  │  │ • Auto Gen IDs  │  │ • Auto Gen IDs  │  │ • Auto Gen IDs  │         │ │
+│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘         │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                       │
+                                       │ SQL Queries (Hibernate Generated)
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             DATABASE LAYER                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                            H2 DATABASE                                 │ │
+│  │                                                                         │ │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │ │
+│  │  │  WORKPLANS  │  │    PAC_     │  │    PPS_     │  │ OPERATIONS  │     │ │
+│  │  │    TABLE    │  │ OPERATIONS  │  │ OPERATIONS  │  │    TABLE    │     │ │
+│  │  │             │  │    TABLE    │  │    TABLE    │  │             │     │ │
+│  │  │ • ID (PK)   │  │ • ID (PK)   │  │ • ID (PK)   │  │ • ID (PK)   │     │ │
+│  │  │ • Title     │  │ • Op Type   │  │ • PPS Name  │  │ • Op Name   │     │ │
+│  │  │ • Desc      │  │ • Facility  │  │ • Location  │  │ • Op Type   │     │ │
+│  │  │ • Status    │  │ • Address   │  │ • Status    │  │ • Status    │     │ │
+│  │  │ • Priority  │  │ • Date      │  │ • Capacity  │  │ • Dates     │     │ │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘     │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### ALTERNATIVE PYTHON FLASK BACKEND ARCHITECTURE
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
